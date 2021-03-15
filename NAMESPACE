@@ -1,0 +1,28 @@
+useDynLib(FEAST, .registration=TRUE)
+
+import(SC3)
+import(mclust)
+import(Biobase)
+import(limma)
+import(aricode)
+import(assertthat)
+import(doParallel)
+import(knitr)
+import(irlba)
+import(SingleCellExperiment)
+
+export(
+    FEAST,
+    FEAST_fast,
+    Consensus,
+    cal_F2,
+    SC3_Clust,
+    TSCAN_Clust,
+    cal_MSE,
+    eval_Cluster,
+    process_Y,
+    Norm_Y,
+    align_CellType,
+    Select_Model_short_SC3,
+    Visual_Rslt
+)
