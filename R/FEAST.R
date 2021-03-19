@@ -148,7 +148,7 @@ FEAST_fast = function (Y, k = 2, num_pcs = 10, split = FALSE, batch_size =1000){
     pc_res = pca_res$x
 
     # setup for parallel computing.
-    num_cores = detectCores() - 1
+    num_cores = 2 #detectCores() - 1
     cl = makeCluster(num_cores)
     registerDoParallel(cl)
 
@@ -232,6 +232,3 @@ FEAST_fast = function (Y, k = 2, num_pcs = 10, split = FALSE, batch_size =1000){
     ixs = order(F_scores, decreasing = TRUE, na.last = TRUE)
     return(ixs)
 }
-
-
-
