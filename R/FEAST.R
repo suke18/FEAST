@@ -232,6 +232,3 @@ FEAST_fast = function (Y, k = 2, num_pcs = 10, split = FALSE, batch_size =1000){
     ixs = order(F_scores, decreasing = TRUE, na.last = TRUE)
     return(ixs)
 }
-
-
-
