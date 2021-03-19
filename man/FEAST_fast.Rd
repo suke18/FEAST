@@ -4,7 +4,14 @@
 \alias{FEAST_fast}
 \title{FEAST main function (fast version)}
 \usage{
-FEAST_fast(Y, k = 2, num_pcs = 10, split = FALSE, batch_size = 1000)
+FEAST_fast(
+  Y,
+  k = 2,
+  num_pcs = 10,
+  split = FALSE,
+  batch_size = 1000,
+  BPPARAM = NULL
+)
 }
 \arguments{
 \item{Y}{A expression matrix. Raw count matrix or normalized matrix.}
@@ -16,6 +23,8 @@ FEAST_fast(Y, k = 2, num_pcs = 10, split = FALSE, batch_size = 1000)
 \item{split}{boolean. If T, using subsampling to calculate the gene-level significance.}
 
 \item{batch_size}{when split is true, need to claim the batch size for spliting the cells.}
+
+\item{BPPARAM}{parameters for BiocParallel. e.g. bpparam().}
 }
 \value{
 the rankings of the gene-significance.

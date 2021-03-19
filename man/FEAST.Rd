@@ -10,7 +10,8 @@ FEAST(
   num_pcs = 10,
   dim_reduce = c("pca", "svd"),
   split = FALSE,
-  batch_size = 1000
+  batch_size = 1000,
+  BPPARAM = NULL
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ FEAST(
 \item{split}{boolean. If T, using subsampling to calculate the gene-level significance.}
 
 \item{batch_size}{when split is true, need to claim the batch size for spliting the cells.}
+
+\item{BPPARAM}{parameters for BiocParallel. e.g. bpparam().}
 }
 \value{
 the rankings of the gene-significance.

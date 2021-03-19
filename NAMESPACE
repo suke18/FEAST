@@ -1,6 +1,7 @@
 useDynLib(FEAST, .registration=TRUE)
 
 import(SC3)
+import(BiocParallel)
 import(mclust)
 import(Biobase)
 import(limma)
