@@ -43,10 +43,10 @@ FEAST = function (Y, k = 2, num_pcs = 10, dim_reduce = c("pca", "svd"), split = 
                     svd = svd(t(YYnorm))$u)
 
     # setup for parallel computing.
-    if (bpworkers(BPPARAM) ==1){
-        num_cores = 2
-        BPPARAM = SnowParam(workers = num_cores, type = "FORK")
-    }
+    # if (bpworkers(BPPARAM) ==1){
+    #     num_cores = 2
+    #     BPPARAM = SnowParam(workers = num_cores, type = "FORK")
+    # }
 
     message("start consensus clustering ...")
     # consensus clustering for less cells (<5000)
@@ -156,10 +156,10 @@ FEAST_fast = function (Y, k = 2, num_pcs = 10, split = FALSE, batch_size =1000, 
     pc_res = pca_res$x
 
     # setup for parallel computing. register for bplapply
-    if (bpworkers(BPPARAM) ==1){
-        num_cores = 2
-        BPPARAM = SnowParam(workers = num_cores, type = "FORK")
-    }
+    # if (bpworkers(BPPARAM) ==1){
+    #     num_cores = 2
+    #     BPPARAM = SnowParam(workers = num_cores, type = "FORK")
+    # }
 
     # pb = txtProgressBar(min=1, max=num_pcs-1,style=3)
     # f = function(){
