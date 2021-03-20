@@ -4,13 +4,6 @@
 #' @param tops A numeric vector containing a list of numbers corresponding to top genes; e.g., tops = c(500, 1000, 2000).
 #' @param cluster The initial cluster labels NA values are allowed. This can directly from the \code{Consensus} function.
 #' @return mse and the SC3 clustering result.
-#' @examples
-#' data(Yan)
-#' k = length(unique(trueclass))
-#' Y = process_Y(Y, thre = 2) # preprocess the data
-#' con_res = Consensus(Y, k=k)
-#' mod_res = Select_Model_short_SC3(Y, cluster = con_res$cluster, top = c(200, 500, 1000, 2000))
-#' @export
 Select_Model_short_SC3 = function(Y, cluster, tops = c(500, 1000, 2000)){
     # make sure the labels and the cells are one-to-one match
     stopifnot(ncol(Y) == length(cluster))

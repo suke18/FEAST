@@ -22,6 +22,5 @@ export(
     process_Y,
     Norm_Y,
     align_CellType,
-    Select_Model_short_SC3,
     Visual_Rslt
 )

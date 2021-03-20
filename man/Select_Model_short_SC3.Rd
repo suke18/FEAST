@@ -19,10 +19,3 @@ mse and the SC3 clustering result.
 \description{
 Using clustering results based on feature selection to perform model selection.
 }
-\examples{
-data(Yan)
-k = length(unique(trueclass))
-Y = process_Y(Y, thre = 2) # preprocess the data
-con_res = Consensus(Y, k=k)
-mod_res = Select_Model_short_SC3(Y, cluster = con_res$cluster, top = c(200, 500, 1000, 2000))
-}
