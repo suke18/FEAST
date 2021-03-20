@@ -1,7 +1,7 @@
 Package: FEAST
 Type: Package
 Title: FEAture SelcTion (FEAST) for Single-cell clustering
-Version: 0.99.6
+Version: 0.99.7
 Authors@R:
     c(person("Kenong","Su", email ="kenong.su@emory.edu", role = c("aut", "cre")),
     person("Hao","Wu", email ="hao.wu@emory.edu", role ="aut"))
@@ -14,7 +14,7 @@ License: GPL-2
 Encoding: UTF-8
 LazyData: false
 Depends:
-    limma, knitr, aricode, assertthat, mclust, SingleCellExperiment, BiocParallel, irlba
+    R (>= 4.0), limma, knitr, aricode, assertthat, mclust, SingleCellExperiment, BiocParallel, irlba
 biocViews: Sequencing, SingleCell, Clustering, FeatureExtraction
 BugReports: https://github.com/suke18/FEAST/issues
 Imports:
