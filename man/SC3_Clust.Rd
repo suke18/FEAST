@@ -19,8 +19,3 @@ the clustering labels and the featured genes.
 \description{
 SC3 Clustering
 }
-\examples{
-data(Yan)
-k = length(unique(trueclass))
-res = SC3_Clust(Y, k=k) # could specific the input features by using input_markers argument
-}

@@ -105,6 +105,8 @@ ixs = order(F_res$F_scores, decreasing = TRUE) # order the features
 After ranking the genes by F-statistics, FEAST curates a series of top number of features (genes). Then, FEAST input these top (by default `top = 500, 1000, 2000`) features into some established clustering algorithm (e.g. SC3 [@kiselev2017sc3]). It is worth noting that one needs to confirm the **k** to be the same for every iteration. 
 
 After the clustering steps, with the case of unknown cell types, FEAST evaluates the quality of the feature set by computing the average distance between each cell and the clustering centers, which is the same as the MSE. It is noting that FEAST uses all the features (genes) for distance calculation for the purpose of fair comparisons. The clustering centers are obtained by using previous clustering step. 
+
+It is noted that FEAST is not limited to SC3 clustering. It also shows superior performance on other clustering methods such as TSCAN. The code for running SC3 and TSCAN are embedded in FEAST package, which can be access by **FEAST::SC3_Clust** and **FEAST::TSCAN_Clust**. 
 ```{r validation, eval = FALSE}
 ## clustering step
 tops = c(500, 1000, 2000)
@@ -130,7 +132,7 @@ names(mse_res) = names(cluster_res)
 ## Compare to the real cell type labels
 
 ### Benchmark with the original SC3
-After the validation step, the feature set associated with the smallest MSE value will be recommended for the further analysis. Here, we demonstrate that an improved clustering accuracy by specifying the optimal feature set. The benchmark comparison is the original setting of established clustering algorithm (e.g. SC3).
+After the validation step, the feature set associated with the smallest MSE value will be recommended for the further analysis. Here, we demonstrate that an improved clustering accuracy by specifying the optimal feature set. The benchmark comparison is the original setting of established clustering algorithm (e.g. SC3). 
 ```{r demo, eval = FALSE}
 SC3_original = SC3_Clust(Y, k=k)
 id = which.min(mse_res)

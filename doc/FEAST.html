@@ -10,7 +10,7 @@
 
 
 
-<meta name="date" content="2021-03-14" />
+<meta name="date" content="2021-03-19" />
 
 <title>The FEAST User’s Guide</title>
 
@@ -1863,11 +1863,11 @@ function toggle_visibility(id1) {
 <h1 class="title toc-ignore">The FEAST User’s Guide</h1>
 <p class="author-name">Kenong Su<span class="affil-mark">*</span> and Hao Wu<span class="affil-mark">**</span></p>
 <p class="author-email"><span class="affil-mark">*</span><a href="mailto:kenong.su@emory.edu">kenong.su@emory.edu</a><br><span class="affil-mark">**</span><a href="mailto:hao.wu@emory.edu">hao.wu@emory.edu</a></p>
-<h4 class="date">14 March 2021</h4>
+<h4 class="date">19 March 2021</h4>
 <h4 class="abstract">Abstract</h4>
 <p>This vignette introduces the usage of the Bioconductor package FEAST (FEAture SelecTion for scRNA-seq data), which is specifically designed for selecting most representative genes before performing the core of clustering. It is demonstrated an improved clustering accuracy when recruting the featured genes selected by FEAST.</p>
 <h4 class="package">Package</h4>
-<p>FEAST 0.99.1</p>
+<p>FEAST 0.99.3</p>
 
 </div>
 
@@ -1901,6 +1901,14 @@ k = length(unique(trueclass))
 Y = process_Y(Y, thre = 2)
 ixs = FEAST(Y, k=k)
 #&gt; start consensus clustering ...
+#&gt; 
+  |                                                                            
+  |                                                                      |   0%
+  |                                                                            
+  |===================================                                   |  50%
+  |                                                                            
+  |======================================================================| 100%
+#&gt; 
 #&gt; 
   |                                                                            
   |                                                                      |   0%
@@ -2002,6 +2010,7 @@ ixs = order(F_res$F_scores, decreasing = TRUE) # order the features</code></pre>
 <h2><span class="header-section-number">2.4</span> Clustering and validation</h2>
 <p>After ranking the genes by F-statistics, FEAST curates a series of top number of features (genes). Then, FEAST input these top (by default <code>top = 500, 1000, 2000</code>) features into some established clustering algorithm (e.g. SC3 <span class="citation">(Kiselev et al. 2017)</span>). It is worth noting that one needs to confirm the <strong>k</strong> to be the same for every iteration.</p>
 <p>After the clustering steps, with the case of unknown cell types, FEAST evaluates the quality of the feature set by computing the average distance between each cell and the clustering centers, which is the same as the MSE. It is noting that FEAST uses all the features (genes) for distance calculation for the purpose of fair comparisons. The clustering centers are obtained by using previous clustering step.</p>
+<p>It is noted that FEAST is not limited to SC3 clustering. It also shows superior performance on other clustering methods such as TSCAN. The code for running SC3 and TSCAN are embedded in FEAST package, which can be access by <strong>FEAST::SC3_Clust</strong> and <strong>FEAST::TSCAN_Clust</strong>.</p>
 <pre class="r"><code>## clustering step
 tops = c(500, 1000, 2000)
 cluster_res = NULL
@@ -2077,50 +2086,50 @@ Visual_Rslt(model_cv_res = mod_res, trueclass = trueclass)</code></pre>
 #&gt; [8] methods   base     
 #&gt; 
 #&gt; other attached packages:
-#&gt;  [1] FEAST_0.99.1                irlba_2.3.3                
-#&gt;  [3] Matrix_1.3-2                doParallel_1.0.16          
-#&gt;  [5] iterators_1.0.13            foreach_1.5.1              
-#&gt;  [7] SingleCellExperiment_1.12.0 SummarizedExperiment_1.20.0
-#&gt;  [9] Biobase_2.50.0              GenomicRanges_1.42.0       
-#&gt; [11] GenomeInfoDb_1.26.2         IRanges_2.24.1             
-#&gt; [13] S4Vectors_0.28.1            BiocGenerics_0.36.0        
-#&gt; [15] MatrixGenerics_1.2.1        matrixStats_0.58.0         
-#&gt; [17] mclust_5.4.7                assertthat_0.2.1           
-#&gt; [19] aricode_1.0.0               knitr_1.31                 
-#&gt; [21] limma_3.46.0                BiocStyle_2.18.1           
+#&gt;  [1] FEAST_0.99.3                irlba_2.3.3                
+#&gt;  [3] Matrix_1.3-2                BiocParallel_1.24.1        
+#&gt;  [5] SingleCellExperiment_1.12.0 SummarizedExperiment_1.20.0
+#&gt;  [7] Biobase_2.50.0              GenomicRanges_1.42.0       
+#&gt;  [9] GenomeInfoDb_1.26.2         IRanges_2.24.1             
+#&gt; [11] S4Vectors_0.28.1            BiocGenerics_0.36.0        
+#&gt; [13] MatrixGenerics_1.2.1        matrixStats_0.58.0         
+#&gt; [15] mclust_5.4.7                assertthat_0.2.1           
+#&gt; [17] aricode_1.0.0               knitr_1.31                 
+#&gt; [19] limma_3.46.0                BiocStyle_2.18.1           
 #&gt; 
 #&gt; loaded via a namespace (and not attached):
 #&gt;  [1] colorspace_2.0-0       ellipsis_0.3.1         class_7.3-18          
 #&gt;  [4] rprojroot_2.0.2        XVector_0.30.0         fs_1.5.0              
 #&gt;  [7] rstudioapi_0.13        remotes_2.2.0          fansi_0.4.2           
-#&gt; [10] mvtnorm_1.1-1          codetools_0.2-18       cachem_1.0.4          
-#&gt; [13] robustbase_0.93-7      pkgload_1.2.0          jsonlite_1.7.2        
-#&gt; [16] cluster_2.1.1          pheatmap_1.0.12        shiny_1.6.0           
-#&gt; [19] BiocManager_1.30.10    rrcov_1.5-5            compiler_4.0.3        
-#&gt; [22] fastmap_1.1.0          cli_2.3.1              later_1.1.0.1         
-#&gt; [25] htmltools_0.5.1.1      prettyunits_1.1.1      tools_4.0.3           
-#&gt; [28] gtable_0.3.0           glue_1.4.2             GenomeInfoDbData_1.2.4
-#&gt; [31] dplyr_1.0.4            doRNG_1.8.2            Rcpp_1.0.6            
-#&gt; [34] jquerylib_0.1.3        vctrs_0.3.6            xfun_0.21             
-#&gt; [37] stringr_1.4.0          ps_1.6.0               testthat_3.0.2        
-#&gt; [40] mime_0.10              lifecycle_1.0.0        rngtools_1.5          
-#&gt; [43] WriteXLS_6.2.0         devtools_2.3.2         DEoptimR_1.0-8        
-#&gt; [46] zlibbioc_1.36.0        scales_1.1.1           promises_1.2.0.1      
-#&gt; [49] RColorBrewer_1.1-2     yaml_2.2.1             memoise_2.0.0         
-#&gt; [52] ggplot2_3.3.3          sass_0.3.1             stringi_1.5.3         
-#&gt; [55] highr_0.8              desc_1.2.0             pcaPP_1.9-73          
-#&gt; [58] e1071_1.7-4            pkgbuild_1.2.0         rlang_0.4.10          
-#&gt; [61] pkgconfig_2.0.3        bitops_1.0-6           evaluate_0.14         
-#&gt; [64] lattice_0.20-41        ROCR_1.0-11            purrr_0.3.4           
-#&gt; [67] processx_3.4.5         tidyselect_1.1.0       magrittr_2.0.1        
-#&gt; [70] bookdown_0.21          R6_2.5.0               generics_0.1.0        
-#&gt; [73] DelayedArray_0.16.2    DBI_1.1.1              pillar_1.5.0          
-#&gt; [76] withr_2.4.1            RCurl_1.98-1.2         tibble_3.1.0          
-#&gt; [79] crayon_1.4.1           SC3_1.18.0             utf8_1.1.4            
-#&gt; [82] rmarkdown_2.7          usethis_2.0.1          grid_4.0.3            
-#&gt; [85] callr_3.5.1            digest_0.6.27          xtable_1.8-4          
-#&gt; [88] httpuv_1.5.5           munsell_0.5.0          bslib_0.2.4           
-#&gt; [91] sessioninfo_1.1.1</code></pre>
+#&gt; [10] mvtnorm_1.1-1          codetools_0.2-18       doParallel_1.0.16     
+#&gt; [13] cachem_1.0.4           robustbase_0.93-7      pkgload_1.2.0         
+#&gt; [16] jsonlite_1.7.2         cluster_2.1.1          pheatmap_1.0.12       
+#&gt; [19] shiny_1.6.0            BiocManager_1.30.10    rrcov_1.5-5           
+#&gt; [22] compiler_4.0.3         fastmap_1.1.0          cli_2.3.1             
+#&gt; [25] later_1.1.0.1          htmltools_0.5.1.1      prettyunits_1.1.1     
+#&gt; [28] tools_4.0.3            gtable_0.3.0           glue_1.4.2            
+#&gt; [31] GenomeInfoDbData_1.2.4 dplyr_1.0.4            doRNG_1.8.2           
+#&gt; [34] Rcpp_1.0.6             jquerylib_0.1.3        vctrs_0.3.6           
+#&gt; [37] iterators_1.0.13       xfun_0.21              stringr_1.4.0         
+#&gt; [40] ps_1.6.0               testthat_3.0.2         mime_0.10             
+#&gt; [43] lifecycle_1.0.0        rngtools_1.5           WriteXLS_6.2.0        
+#&gt; [46] devtools_2.3.2         DEoptimR_1.0-8         zlibbioc_1.36.0       
+#&gt; [49] scales_1.1.1           promises_1.2.0.1       RColorBrewer_1.1-2    
+#&gt; [52] yaml_2.2.1             memoise_2.0.0          ggplot2_3.3.3         
+#&gt; [55] sass_0.3.1             stringi_1.5.3          highr_0.8             
+#&gt; [58] desc_1.2.0             pcaPP_1.9-73           foreach_1.5.1         
+#&gt; [61] e1071_1.7-4            pkgbuild_1.2.0         rlang_0.4.10          
+#&gt; [64] pkgconfig_2.0.3        bitops_1.0-6           evaluate_0.14         
+#&gt; [67] lattice_0.20-41        ROCR_1.0-11            purrr_0.3.4           
+#&gt; [70] processx_3.4.5         tidyselect_1.1.0       magrittr_2.0.1        
+#&gt; [73] bookdown_0.21          R6_2.5.0               generics_0.1.0        
+#&gt; [76] DelayedArray_0.16.2    DBI_1.1.1              pillar_1.5.0          
+#&gt; [79] withr_2.4.1            RCurl_1.98-1.2         tibble_3.1.0          
+#&gt; [82] crayon_1.4.1           SC3_1.18.0             utf8_1.1.4            
+#&gt; [85] rmarkdown_2.7          usethis_2.0.1          grid_4.0.3            
+#&gt; [88] callr_3.5.1            digest_0.6.27          xtable_1.8-4          
+#&gt; [91] httpuv_1.5.5           munsell_0.5.0          bslib_0.2.4           
+#&gt; [94] sessioninfo_1.1.1</code></pre>
 </div>
 <div id="reference" class="section level1 unnumbered">
 <h1>Reference</h1>
