@@ -10,7 +10,7 @@ FEAST_fast(
   num_pcs = 10,
   split = FALSE,
   batch_size = 1000,
-  BPPARAM = NULL
+  BPPARAM = bpparam()
 )
 }
 \arguments{

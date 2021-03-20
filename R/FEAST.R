@@ -18,7 +18,7 @@
 #' k = length(unique(trueclass))
 #' ixs = FEAST(Y, k=k)
 #' @export
-FEAST = function (Y, k = 2, num_pcs = 10, dim_reduce = c("pca", "svd"), split = FALSE, batch_size =1000, BPPARAM=NULL){
+FEAST = function (Y, k = 2, num_pcs = 10, dim_reduce = c("pca", "svd"), split = FALSE, batch_size =1000, BPPARAM=bpparam()){
     if (all(Y%%1 == 0)) {
         L = colSums(Y)/median(colSums(Y))
         Ynorm = log(sweep(Y, 2, L, FUN = "/") + 1)
@@ -43,7 +43,7 @@ FEAST = function (Y, k = 2, num_pcs = 10, dim_reduce = c("pca", "svd"), split = 
                     svd = svd(t(YYnorm))$u)
 
     # setup for parallel computing.
-    if (is.null(BPPARAM)){
+    if (bpworkers(BPPARAM) ==1){
         num_cores = 2
         BPPARAM = SnowParam(workers = num_cores, type = "FORK")
     }
@@ -134,7 +134,7 @@ FEAST = function (Y, k = 2, num_pcs = 10, dim_reduce = c("pca", "svd"), split = 
 #' k = length(unique(trueclass))
 #' res = FEAST_fast(Y, k=k)
 #' @export
-FEAST_fast = function (Y, k = 2, num_pcs = 10, split = FALSE, batch_size =1000, BPPARAM=NULL){
+FEAST_fast = function (Y, k = 2, num_pcs = 10, split = FALSE, batch_size =1000, BPPARAM=bpparam()){
     if (all(Y%%1 == 0)) {
         L = colSums(Y)/median(colSums(Y))
         Ynorm = log(sweep(Y, 2, L, FUN = "/") + 1)
@@ -156,7 +156,7 @@ FEAST_fast = function (Y, k = 2, num_pcs = 10, split = FALSE, batch_size =1000, 
     pc_res = pca_res$x
 
     # setup for parallel computing. register for bplapply
-    if (is.null(BPPARAM)){
+    if (bpworkers(BPPARAM) ==1){
         num_cores = 2
         BPPARAM = SnowParam(workers = num_cores, type = "FORK")
     }

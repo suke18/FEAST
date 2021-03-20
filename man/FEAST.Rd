@@ -11,7 +11,7 @@ FEAST(
   dim_reduce = c("pca", "svd"),
   split = FALSE,
   batch_size = 1000,
-  BPPARAM = NULL
+  BPPARAM = bpparam()
 )
 }
 \arguments{
