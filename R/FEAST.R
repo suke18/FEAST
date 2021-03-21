@@ -44,39 +44,10 @@ FEAST = function (Y, k = 2, num_pcs = 10, dim_reduce = c("pca", "svd", "irlba"),
                     svd = svd(t(YYnorm))$u,
                     irlba = prcomp_irlba(t(YYnorm_scale), n = num_pcs)$x)
 
-    # setup for parallel computing. if it is one, it means on windows
+    # setup for parallel computing. if it is SnowParam, it means on windows
     message("start consensus clustering ...")
-    if (bpworkers(BPPARAM) ==1){
-        con_mat =  matrix(0, ncol = ncells, nrow = ncells)
-        for (j in 1:num_pcs){
-            tmp_pca_mat = pc_res[, 1:i]
-            if (i == 1) {
-                res = suppressWarnings(Mclust(tmp_pca_mat, G = k, modelNames = "V", verbose = FALSE))
-            }
-            else {
-                res = suppressWarnings(Mclust(tmp_pca_mat, G = k, modelNames = "VVV", verbose = FALSE))
-            }
-            if (is.null(res)){
-                res = suppressWarnings(Mclust(tmp_pca_mat, G = k, verbose = FALSE))
-            }
-            clusterid = apply(res$z, 1, which.max)
-            con_mat = con_mat + vector2matrix(clusterid)
-        }
-        # final clustering
-        res = suppressWarnings(Mclust(con_mat, G = k, modelNames = "VII",  verbose = FALSE))
-        if (is.null(res)) {
-            res = suppressWarnings(Mclust(con_mat, G = k, verbose = FALSE))
-        }
-        cluster = apply(res$z, 1, function(x) {
-            id = which(x > 0.95)
-            if (length(id) == 0) {
-                return(NA)
-            }
-            else {
-                return(id)
-            }
-        })
-        F_scores = cal_F2(Ynorm, classes = cluster)$F_scores
+    if (class(BPPARAM) =="SnowParam"){
+        BPPARAM = SnowParam(4)
     }
     # consensus clustering for less cells (<5000)
     BPPARAM$progressbar = TRUE
