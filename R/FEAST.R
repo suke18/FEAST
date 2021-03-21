@@ -49,8 +49,8 @@ FEAST = function (Y, k = 2, num_pcs = 10, dim_reduce = c("pca", "svd", "irlba"),
     if (class(BPPARAM) =="SnowParam"){
         con_mat = matrix(0, ncol = ncells, nrow = ncells)
         for (j in 1:num_pcs){
-            tmp_pca_mat = pc_res[, 1:i]
-            if (i == 1) {
+            tmp_pca_mat = pc_res[, 1:j]
+            if (j == 1) {
                 res = suppressWarnings(Mclust(tmp_pca_mat, G = k, modelNames = "V", verbose = FALSE))
             }
             else {
