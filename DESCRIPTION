@@ -1,7 +1,7 @@
 Package: FEAST
 Type: Package
 Title: FEAture SelcTion (FEAST) for Single-cell clustering
-Version: 0.99.11
+Version: 0.99.12
 Authors@R:
     c(person("Kenong","Su", email ="kenong.su@emory.edu", role = c("aut", "cre")),
     person("Hao","Wu", email ="hao.wu@emory.edu", role ="aut"))

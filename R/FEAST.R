@@ -46,7 +46,7 @@ FEAST = function (Y, k = 2, num_pcs = 10, dim_reduce = c("pca", "svd", "irlba"),
 
     # setup for parallel computing. if it is SnowParam, it means on windows
     message("start consensus clustering ...")
-    if (class(BPPARAM) =="SnowParam"){
+    if (is(BPPARAM, "SnowParam")){
         con_mat = matrix(0, ncol = ncells, nrow = ncells)
         for (j in 1:num_pcs){
             tmp_pca_mat = pc_res[, 1:j]
@@ -185,10 +185,26 @@ FEAST_fast = function (Y, k = 2, num_pcs = 10, split = FALSE, batch_size =1000, 
 
     # setup for parallel computing. register for bplapply.
     # for windows platform, bpworkers(BPPARAM) == 1. Just use the simple loop (woops).
-    # if (bpworkers(BPPARAM) ==1){
-    #     num_cores = 2
-    #     BPPARAM = SnowParam(workers = num_cores, type = "FORK")
-    # }
+    if (is(BPPARAM, "SnowParam")){
+        con_mat = matrix(0, ncol = ncells, nrow = ncells)
+        for (j in 1:num_pcs){
+            tmp_pca_mat = pc_res[, 1:j]
+            if (j == 1) {
+                res = suppressWarnings(Mclust(tmp_pca_mat, G = k, modelNames = "V", verbose = FALSE))
+            }
+            else {
+                res = suppressWarnings(Mclust(tmp_pca_mat, G = k, modelNames = "VVV", verbose = FALSE))
+            }
+            if (is.null(res)){
+                res = suppressWarnings(Mclust(tmp_pca_mat, G = k, verbose = FALSE))
+            }
+            clusterid = apply(res$z, 1, which.max)
+            con_mat = con_mat + vector2matrix(clusterid)
+        }
+        km = kmeans(con_mat, k)
+        cluster = km$cluster
+        F_scores = cal_F2(Ynorm, classes = cluster)$F_scores
+    }
 
     # pb = txtProgressBar(min=1, max=num_pcs-1,style=3)
     # f = function(){
