@@ -16,6 +16,7 @@ export(
     FEAST_fast,
     Consensus,
     cal_F2,
+    SC3_Clust,
     TSCAN_Clust,
     cal_MSE,
     eval_Cluster,

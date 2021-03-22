@@ -18,7 +18,7 @@ This tutorial introduces the basic functionalities of FEAST. Please use the vign
 ### 1. Software Installation
 ```
 library(devtools)
-install_github("suke18/FEAST", dependencies=T, build_vignettes = T)
+install_github("suke18/FEAST", dependencies=T)
 library(FEAST)
 ```
 
@@ -96,7 +96,7 @@ Visual_Rslt(model_cv_res = mod_res, trueclass = trueclass)
   </p>
 
 ### 5. Performance on other datasets
-Here, we show the performance for Yan and Goolam datasets.
+Here, we show the performance for Yan and Goolam datasets. In some datasets, the performance gain can be significant. 
 
 Yan Dataset            |  Goolam Ocean
 :-------------------------:|:-------------------------:
