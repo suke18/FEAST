@@ -8,7 +8,7 @@
 #' @param Y A expression matrix. Raw count matrix or normalized matrix.
 #' @param k The number of input clusters (best guess).
 #' @param num_pcs The number of top pcs that will be investigated through the consensus clustering.
-#' @param dim_reduce dimension reduction methods chosen from pca or svd.
+#' @param dim_reduce dimension reduction methods chosen from pca, svd, or irlba.
 #' @param split boolean. If T, using subsampling to calculate the gene-level significance.
 #' @param batch_size when split is true, need to claim the batch size for spliting the cells.
 #' @param BPPARAM parameters for BiocParallel. e.g. bpparam() and SnowParam.

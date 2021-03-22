@@ -8,7 +8,7 @@ FEAST(
   Y,
   k = 2,
   num_pcs = 10,
-  dim_reduce = c("pca", "svd"),
+  dim_reduce = c("pca", "svd", "irlba"),
   split = FALSE,
   batch_size = 1000,
   BPPARAM = bpparam()
@@ -21,13 +21,13 @@ FEAST(
 
 \item{num_pcs}{The number of top pcs that will be investigated through the consensus clustering.}
 
-\item{dim_reduce}{dimension reduction methods chosen from pca or svd.}
+\item{dim_reduce}{dimension reduction methods chosen from pca, svd, or irlba.}
 
 \item{split}{boolean. If T, using subsampling to calculate the gene-level significance.}
 
 \item{batch_size}{when split is true, need to claim the batch size for spliting the cells.}
 
-\item{BPPARAM}{parameters for BiocParallel. e.g. bpparam().}
+\item{BPPARAM}{parameters for BiocParallel. e.g. bpparam() and SnowParam.}
 }
 \value{
 the rankings of the gene-significance.

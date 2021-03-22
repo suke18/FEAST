@@ -10,7 +10,7 @@ FEAST_fast(
   num_pcs = 10,
   split = FALSE,
   batch_size = 1000,
-  BPPARAM = bpparam()
+  BPPARAM = SnowParam()
 )
 }
 \arguments{
@@ -24,7 +24,7 @@ FEAST_fast(
 
 \item{batch_size}{when split is true, need to claim the batch size for spliting the cells.}
 
-\item{BPPARAM}{parameters for BiocParallel. e.g. bpparam().}
+\item{BPPARAM}{parameters for BiocParallel. e.g. bpparam() and SnowParam.}
 }
 \value{
 the rankings of the gene-significance.

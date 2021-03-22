@@ -38,7 +38,7 @@ void cal_3_metrics(int *cl1, int *cl1u, int *cl2, int *cl2u, int *m1, int *m2,
 {
     int i, j, t, r, *nmatrix;
     int mm1, mm2, nn, fflag;
-    double a, b, c, d, denom;
+    double a, b, c, d;
     double *nc, *nr, ni_2, n_j2, nt, nij_2;
 
     mm1 = *m1; mm2 = *m2; nn = *n; fflag = *flag;
@@ -48,7 +48,6 @@ void cal_3_metrics(int *cl1, int *cl1u, int *cl2, int *cl2u, int *m1, int *m2,
     nr = (double *)malloc((size_t)(mm1 * sizeof(double)));
 
     a = 0.0; b = 0.0; c = 0.0; d = 0.0;
-    denom = 0.0;
     for(t = 0; t < nn ; t ++){
         for(r = t + 1; r < nn; r ++){
             if((cl1[t] == cl1[r]) && (cl2[t] == cl2[r])){
