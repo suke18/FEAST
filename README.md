@@ -96,9 +96,9 @@ Visual_Rslt(model_cv_res = mod_res, trueclass = trueclass)
   </p>
 
 ### 5. Performance on other datasets
-Here, we show the performance for Yan and Goolam datasets. In some datasets, the performance gain can be significant. 
+Here, we show the performance for Yan and Goolam datasets. In some datasets, the performance gain can be significant.
 
-Yan Dataset            |  Goolam Ocean
+Yan Dataset            |  Goolam Dataset
 :-------------------------:|:-------------------------:
 ![](vignettes/Yan_performance.png)  |  ![](vignettes/Goolam_performance.png)
 
