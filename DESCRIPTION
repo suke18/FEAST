@@ -1,7 +1,7 @@
 Package: FEAST
 Type: Package
 Title: FEAture SelcTion (FEAST) for Single-cell clustering
-Version: 0.99.15
+Version: 0.99.16
 Authors@R: c(person("Kenong","Su", email ="kenong.su@emory.edu", role = c("aut","cre")),person("Hao","Wu", email ="hao.wu@emory.edu", role ="aut"))
 Description: Cell clustering is one of the most important and commonly performed tasks in single-cell RNA sequencing (scRNA-seq) data analysis. 
             An important step in cell clustering is to select a subset of genes (referred to as “features”), whose expression patterns will then 
