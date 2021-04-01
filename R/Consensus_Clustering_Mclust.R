@@ -26,6 +26,10 @@ vector2matrix = function(vec){
 #' @return the clustering labels and the featured genes.
 #' @examples
 #' data(Yan)
+#' set.seed(123)
+#' rixs = sample(nrow(Y), 500)
+#' cixs = sample(ncol(Y), 40)
+#' Y = Y[rixs, cixs]
 #' con = Consensus(Y, k=5)
 #' @export
 Consensus = function(Y, num_pcs = 10, top_pctg = 0.33, k =2, thred = 0.9){
@@ -41,16 +45,16 @@ Consensus = function(Y, num_pcs = 10, top_pctg = 0.33, k =2, thred = 0.9){
     cv_scores = row_sds / row_ms
     gene_ranks = order(cv_scores, decreasing = TRUE, na.last = TRUE)
     top = round(nrow(Y) * top_pctg)
-    ixs = gene_ranks[1:top]
+    ixs = gene_ranks[seq_len(top)]
     Y = Y[ixs, ]
     pca_out = prcomp(t(Y))
     # consensus clustering
     mat_res = matrix(0, ncol = ncol(Y), nrow = ncol(Y))
     message("start consensus clustering ...")
     pb = txtProgressBar(min = 0, max = num_pcs, style = 3)
-    for (i in 1:num_pcs){
+    for (i in seq_len(num_pcs)){
         setTxtProgressBar(pb, i)
-        pca_mat = pca_out$x[, 1:i]
+        pca_mat = pca_out$x[, seq_len(i)]
         if (i ==1){
             res = suppressWarnings(Mclust(pca_mat, G = k, modelNames = "V", verbose = FALSE))
         }else{

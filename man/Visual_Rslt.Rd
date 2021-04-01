@@ -18,13 +18,16 @@ a list of mse dataframe, clustering accuracy dataframe, and ggplot object.
 Using clustering results based on feature selection to perform model selection.
 }
 \examples{
-\dontrun{
 data(Yan)
 k = length(unique(trueclass))
 Y = process_Y(Y, thre = 2) # preprocess the data
+set.seed(123)
+rixs = sample(nrow(Y), 500)
+cixs = sample(ncol(Y), 40)
+Y = Y[rixs, ]
 con_res = Consensus(Y, k=k)
-mod_res = Select_Model_short_SC3(Y, cluster = con_res$cluster, top = c(200, 500, 1000, 2000))
+# Not run
+# mod_res = Select_Model_short_SC3(Y, cluster = con_res$cluster, top = c(100, 200))
 library(ggpubr)
-Visual_Rslt(model_cv_res = mod_res, trueclass = trueclass)
-}
+# Visual_Rslt(model_cv_res = mod_res, trueclass = trueclass)
 }

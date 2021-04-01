@@ -38,5 +38,9 @@ FEAST main function
 \examples{
 data(Yan)
 k = length(unique(trueclass))
+set.seed(123)
+rixs = sample(nrow(Y), 500)
+cixs = sample(ncol(Y), 40)
+Y = Y[rixs, cixs]
 ixs = FEAST(Y, k=k)
 }

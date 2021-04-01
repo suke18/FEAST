@@ -24,7 +24,7 @@ align_CellType = function(tt0) {
     ## first find the largest entry
     ix.row = rep(NA, nrow(tt))
     ix.col = rep(NA, ncol(tt))
-    for(i in 1:K) { ## loop through the columns. Note that now we have N_rows<N_cols
+    for(i in seq_len(K)) { ## loop through the columns. Note that now we have N_rows<N_cols
         iii = which(tt == max(tt), arr.ind = TRUE)
         if(is.matrix(iii)) ## multiple max numbers
             iii = iii[1,]
@@ -34,7 +34,7 @@ align_CellType = function(tt0) {
         tt[,iii[2]] = -1
     }
     if(N_rows>N_cols) { # fill in extra rows
-        ix.row[(K+1):N_rows] = setdiff(1:N_rows, ix.row)
+        ix.row[(K+1):N_rows] = setdiff(seq_len(N_rows), ix.row)
     }
     tt = tt0
     if(nrow(tt0)<ncol(tt0))
@@ -54,11 +54,8 @@ align_CellType = function(tt0) {
 #' @param y a vector. x and y are with the same length.
 #' @return the purity score
 Purity = function(x, y) {
-    assert_that(noNA(x))
-    assert_that(noNA(y))
     x = as.vector(x)
     y = as.vector(y)
-    assert_that(length(x) == length(y), msg = "x and y must have the same length!\n")
 
     tbl = table(x, y)
     tbl.major = apply(tbl, 1, max)
@@ -107,7 +104,7 @@ cal_3_metrics = function(cl1, cl2, randMethod = c("Rand", "FM", "Jaccard"))
     n <- length(cl1)
     randVec <- rep(0, len)
     names(randVec) <- randMethod
-    for(i in 1:len)
+    for(i in seq_len(len))
     {
         randMethod[i] <- match.arg(arg = randMethod[i], choices = c("Rand", "FM", "Jaccard"))
 
@@ -128,6 +125,26 @@ cal_3_metrics = function(cl1, cl2, randMethod = c("Rand", "FM", "Jaccard"))
     return(randVec)
 }
 
+
+aricode_NMI = function (c1, c2, variant =
+                            c("max", "min", "sqrt", "sum", "joint")){
+    variant <- match.arg(variant)
+    entropy = function (c1, c2) {
+        res <- sortPairs(c1, c2)
+        N <- length(c1)
+        H.UV <- -sum(res$nij * log(res$nij))/N + log(N)
+        H.U <- -sum(res$ni. * log(res$ni.))/N + log(N)
+        H.V <- -sum(res$n.j * log(res$n.j))/N + log(N)
+        res <- list(UV = H.UV, U = H.U, V = H.V, sortPairs = res)
+        res
+    }
+    H <- entropy(c1, c2)
+    MI <- -H$UV + H$U + H$V
+    D <- switch(variant, max = max(H$U, H$V), sqrt = sqrt(H$U *H$V),
+                min = min(H$U, H$V), sum = 0.5 * (H$U + H$V), joint = H$UV)
+    res <- MI/D
+    res
+}
 
 
 
@@ -150,11 +167,10 @@ eval_Cluster = function(vec1, vec2){
     # ri = metrics3[1]
     fmi = metrics3[2]
     jaccard = metrics3[3]
-    nid = aricode::NID(vec1, vec2)
-    nmi = aricode::NMI(vec1, vec2)
+    # nmi = aricode_NMI(vec1, vec2)
     purity = Purity(vec1, vec2)
-    res = as.numeric(c(ari, nid, nmi, purity, jaccard, fmi))
-    names(res) = c("ARI", "NID", "NMI", "Purity", "Jaccard", "FM")
+    res = as.numeric(c(ari, purity, jaccard, fmi))
+    names(res) = c("ARI", "Purity", "Jaccard", "FM")
     return(res)
 }
 

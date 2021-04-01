@@ -13,6 +13,9 @@
 #' @param k The number of clusters. If it is not provided, k is estimated by the default method in SC3.
 #' @param input_markers A character vector including the featured genes. If they are not presented, SC3 will take care of this.
 #' @return the clustering labels and the featured genes.
+#'  data(Yan)
+#'  k = length(unique(trueclass))
+#'  # res = SC3_Clust(Y, k=k)
 #' @export
 SC3_Clust = function(Y, k = NULL, input_markers = NULL){
     # Y is the count matrix
@@ -71,11 +74,9 @@ SC3_Clust = function(Y, k = NULL, input_markers = NULL){
 #' @param cvcutoff the cv cutoff to filter the genes (default = 1).
 #' @return the clustering labels and the featured genes.
 #' @examples
-#' \donttest{
 #'  data(Yan)
 #'  k = length(unique(trueclass))
-#'  TSCAN_res = TSCAN_Clust(Y, k=k)
-#' }
+#'  # TSCAN_res = TSCAN_Clust(Y, k=k)
 #' @export
 TSCAN_Clust = function(Y, k, minexpr_percent = 0.5, cvcutoff = 1, input_markers = NULL) {
     # Here k is a vector for BIC calculation in Mclust function.
@@ -90,18 +91,19 @@ TSCAN_Clust = function(Y, k, minexpr_percent = 0.5, cvcutoff = 1, input_markers 
     }else{
         dat = dat[input_markers, ]
     }
+    # from the TSCAN source code.
     markers = input_markers
-    sdev <- prcomp(t(dat), scale = TRUE)$sdev[1:20]
-    x <- 1:20
-    optpoint <- which.min(sapply(2:10, function(i) {
+    sdev <- prcomp(t(dat), scale = TRUE)$sdev[seq_len(20)]
+    x <- seq_len(20)
+    optpoint <- which.min(vapply(2:10, function(i) {
         x2 <- pmax(0, x - i)
         sum(lm(sdev ~ x + x2)$residuals^2)
-    }))
+    }, numeric(1)))
     pcadim = optpoint + 1
     tmpdata <- t(apply(dat, 1, scale))
     colnames(tmpdata) <- colnames(dat)
     tmppc <- prcomp(t(tmpdata), scale = TRUE)
-    pcareduceres <- t(tmpdata) %*% tmppc$rotation[, 1:pcadim]
+    pcareduceres <- t(tmpdata) %*% tmppc$rotation[, seq_len(pcadim)]
     res <- suppressWarnings(Mclust(pcareduceres, G = k,
                                    modelNames = "VVV"))
     # This part is not robust
@@ -135,7 +137,7 @@ Seurat_Clust = function(Y, knn = 10, resolution = 0.5, input_markers = NULL){
     seuset = ScaleData(object = seuset)
     seuset = RunPCA(object = seuset, features = VariableFeatures(object = seuset))
     if (! is.null(knn)){
-        seuset = FindNeighbors(object = seuset, dims = 1:knn)
+        seuset = FindNeighbors(object = seuset, dims = seq_len(knn))
     }else{
         seuset = FindNeighbors(object = seuset)
     }

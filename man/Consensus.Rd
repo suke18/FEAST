@@ -25,5 +25,9 @@ Consensus Clustering
 }
 \examples{
 data(Yan)
+set.seed(123)
+rixs = sample(nrow(Y), 500)
+cixs = sample(ncol(Y), 40)
+Y = Y[rixs, cixs]
 con = Consensus(Y, k=5)
 }

@@ -1,0 +1,8 @@
+citEntry(entry="article",
+        title="Accurate feature selection improves single-cell RNA-seq cell clustering",
+        author = personList( as.person("Kenong Su"), as.person("Tianwei Yu"), as.person("Hao Wu")),
+        year = 2021,
+        journal="Briefings in Bioinformatics",
+        paste("Kenong Su, Zhijin Wu, Peng Jin, Hao Wu (2021):",
+               "Accurate feature selection improves single-cell RNA-seq cell clustering",
+                "Briefings in Bioinformatics. doi:10.1093/bib/bbab034" ) )

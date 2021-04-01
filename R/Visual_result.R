@@ -4,23 +4,26 @@
 #' @param trueclass The real class labels
 #' @return a list of mse dataframe, clustering accuracy dataframe, and ggplot object.
 #' @examples
-#' \dontrun{
 #' data(Yan)
 #' k = length(unique(trueclass))
 #' Y = process_Y(Y, thre = 2) # preprocess the data
+#' set.seed(123)
+#' rixs = sample(nrow(Y), 500)
+#' cixs = sample(ncol(Y), 40)
+#' Y = Y[rixs, ]
 #' con_res = Consensus(Y, k=k)
-#' mod_res = Select_Model_short_SC3(Y, cluster = con_res$cluster, top = c(200, 500, 1000, 2000))
+#' # Not run
+#' # mod_res = Select_Model_short_SC3(Y, cluster = con_res$cluster, top = c(100, 200))
 #' library(ggpubr)
-#' Visual_Rslt(model_cv_res = mod_res, trueclass = trueclass)
-#' }
+#' # Visual_Rslt(model_cv_res = mod_res, trueclass = trueclass)
 #' @export
 Visual_Rslt = function(model_cv_res, trueclass){
-    mse = model_cv_res$mse
-    sc3_res = model_cv_res$SC3_res
-    if (missing(trueclass) || length(sc3_res[[1]]$cluster) != length(trueclass)){
+    mse = model_cv_res[[1]]
+    res = model_cv_res[[2]]
+    if (missing(trueclass) || length(res[[1]]$cluster) != length(trueclass)){
         stop("Please input the right true classes !")
     }
-    accur = sapply(sc3_res, function(x) eval_Cluster(x$cluster, trueclass))
+    accur = vapply(res, function(x) eval_Cluster(x$cluster, trueclass), rep(numeric(1), 4))
     accur = accur[c(1,2,3), ]
     df1 = data.frame(lens = names(mse), mse = as.numeric(mse))
     g1 = ggbarplot(df1, x = "lens", y = "mse", ylab = "MSE", fill = "lightblue", color = "grey80",
@@ -42,7 +45,7 @@ Visual_Rslt = function(model_cv_res, trueclass){
     df2$lens = factor(df2$lens, levels = unique(df2$lens))
     g2 = ggline(df2, "lens", "ms",  legend= "bottom",
            linetype = "measures", size = 1, shape = "measures", palette = get_palette("npg", 3),
-           xlab = "# top features", ylab = "measurement", legend.title = '', color = "measures", title = "FEAST by SC3") +
+           xlab = "# top features", ylab = "measurement", legend.title = '', color = "measures", title = "By Clustering") +
         scale_y_continuous(breaks =seq(0, 1, 0.1), labels =seq(0, 1, 0.1), limits =c(0, 1)) + theme(legend.position = c(0.45, 0.11), legend.direction = "horizontal") +
         theme(plot.title = element_text(size=18, face="bold"),
               legend.position = "top", legend.box.just = "left",

@@ -4,6 +4,18 @@
 #' @param tops A numeric vector containing a list of numbers corresponding to top genes; e.g., tops = c(500, 1000, 2000).
 #' @param cluster The initial cluster labels NA values are allowed. This can directly from the \code{Consensus} function.
 #' @return mse and the SC3 clustering result.
+#' @examples
+#' data(Yan)
+#' k = length(unique(trueclass))
+#' Y = process_Y(Y, thre = 2) # preprocess the data
+#' set.seed(123)
+#' rixs = sample(nrow(Y), 500)
+#' cixs = sample(ncol(Y), 40)
+#' Y = Y[rixs, cixs]
+#' con_res = Consensus(Y, k=k)
+#' # not run
+#' # mod_res = Select_Model_short_SC3(Y, cluster = con_res$cluster, top = c(100, 200))
+#' @export
 Select_Model_short_SC3 = function(Y, cluster, tops = c(500, 1000, 2000)){
     # make sure the labels and the cells are one-to-one match
     stopifnot(ncol(Y) == length(cluster))
@@ -19,12 +31,13 @@ Select_Model_short_SC3 = function(Y, cluster, tops = c(500, 1000, 2000)){
         Ynorm = Y
     }
     message("Start the validation processing. ")
-    pb = txtProgressBar(min = 0, max = length(tops), style = 3)
+    ntop = length(tops)
+    pb = txtProgressBar(min = 0, max = ntop, style = 3)
     mse = SC3_res = NULL
-    for (i in 1:length(tops)){
+    for (i in seq_len(ntop)){
         setTxtProgressBar(pb, i)
         top = tops[i]
-        ix = F_orders[1:top]
+        ix = F_orders[seq_len(top)]
         # Need to check the column variance; otherwise cannot calculate the cell-cell distance, thus add one index.
         col_sds = colVars(Y[ix,])
         col_ix = which(col_sds == 0)
@@ -51,6 +64,26 @@ Select_Model_short_SC3 = function(Y, cluster, tops = c(500, 1000, 2000)){
 
 
 
+#' Using clustering results (from TSCAN) based on feature selection to perform model selection.
+#'
+#' @param Y A gene expression matrix
+#' @param tops A numeric vector containing a list of numbers corresponding to top genes; e.g., tops = c(500, 1000, 2000).
+#' @param cluster The initial cluster labels NA values are allowed. This can directly from the \code{Consensus} function.
+#' @param minexpr_percent  The threshold used for processing data in TSCAN. Using it by default.
+#' @param cvcutoff  The threshold used for processing data in TSCAN. Using it by default.
+#' @return mse and the TSCAN clustering result.
+#' @examples
+#' data(Yan)
+#' k = length(unique(trueclass))
+#' Y = process_Y(Y, thre = 2) # preprocess the data
+#' set.seed(123)
+#' rixs = sample(nrow(Y), 500)
+#' cixs = sample(ncol(Y), 40)
+#' Y = Y[rixs, cixs]
+#' con_res = Consensus(Y, k=k)
+#' # not run
+#' # mod_res = Select_Model_short_TSCAN(Y, cluster = con_res$cluster, top = c(100, 200))
+#' @export
 Select_Model_short_TSCAN = function(Y, cluster, minexpr_percent = 0.5, cvcutoff = 1, tops = c(500, 1000, 2000)){
     # make sure the labels and the cells are one-to-one match
     stopifnot(ncol(Y) == length(cluster))
@@ -67,14 +100,15 @@ Select_Model_short_TSCAN = function(Y, cluster, minexpr_percent = 0.5, cvcutoff 
         Ynorm = Y
     }
     message("Start the validation processing. ")
-    pb = txtProgressBar(min = 0, max = length(tops), style = 3)
+    ntop = length(tops)
+    pb = txtProgressBar(min = 0, max = ntop, style = 3)
     mse = TSCAN_res = NULL
     tscan_original = TSCAN_Clust(Y, k, minexpr_percent = minexpr_percent, cvcutoff = cvcutoff)
     TSCAN_res[["origin"]] = tscan_original
-    for (i in 1:length(tops)){
+    for (i in seq_len(ntop)){
         setTxtProgressBar(pb, i)
         top = tops[i]
-        ix = F_orders[1:top]
+        ix = F_orders[seq_len(top)]
         # # Need to check the column variance; otherwise cannot calculate the cell-cell distance, thus add one index.
         # col_sds = colVars(Y[ix,])
         # col_ix = which(col_sds == 0)
@@ -98,24 +132,4 @@ Select_Model_short_TSCAN = function(Y, cluster, minexpr_percent = 0.5, cvcutoff 
     res = list(mse=mse,  TSCAN_res = TSCAN_res)
     return(res)
 }
-
-
-
-
-
-# folds = caret::createFolds(1:ncol(Y), k = 5)
-# # cross validation start
-# cv = lapply(folds, function(cix) {
-#     training_fold = YY[, -cix]
-#     test_fold = YY[, cix]
-#     classifier = suppressWarnings(svm(formula = pred_Y ~ .,
-#                                       data = training_fold,
-#                                       kernel = 'linear'))
-#     y_pred = predict(classifier, newdata = test_fold[,-ncol(YY)])
-#     dist = dist(rbind(y_pred, test_fold[, ncol(YY)]))
-#     return(dist)
-# })
-# cv_accuracy = c(cv_accuracy, mean(as.numeric(cv)))
-
-
 

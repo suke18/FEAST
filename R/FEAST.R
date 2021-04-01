@@ -16,6 +16,10 @@
 #' @examples
 #' data(Yan)
 #' k = length(unique(trueclass))
+#' set.seed(123)
+#' rixs = sample(nrow(Y), 500)
+#' cixs = sample(ncol(Y), 40)
+#' Y = Y[rixs, cixs]
 #' ixs = FEAST(Y, k=k)
 #' @export
 FEAST = function (Y, k = 2, num_pcs = 10, dim_reduce = c("pca", "svd", "irlba"), split = FALSE, batch_size =1000, BPPARAM=bpparam()){
@@ -33,7 +37,7 @@ FEAST = function (Y, k = 2, num_pcs = 10, dim_reduce = c("pca", "svd", "irlba"),
     gene_ranks = order(cv_scores, decreasing = TRUE, na.last = TRUE)
     # this top number of features for pca can be adjusted. Alternatively using top 1000 genes by rowMeans.
     top = round(nrow(Y)*0.33)
-    gene_ixs = gene_ranks[1:top]
+    gene_ixs = gene_ranks[seq_len(top)]
     YYnorm = Ynorm[gene_ixs, ]; ncells = ncol(Ynorm)
     YYnorm_scale = scale(YYnorm, scale=TRUE, center=TRUE)
     dim_reduce = match.arg(dim_reduce)
@@ -48,8 +52,8 @@ FEAST = function (Y, k = 2, num_pcs = 10, dim_reduce = c("pca", "svd", "irlba"),
     message("start consensus clustering ...")
     if (is(BPPARAM, "SnowParam")){
         con_mat = matrix(0, ncol = ncells, nrow = ncells)
-        for (j in 1:num_pcs){
-            tmp_pca_mat = pc_res[, 1:j]
+        for (j in seq_len(num_pcs)){
+            tmp_pca_mat = pc_res[, seq_len(j)]
             if (j == 1) {
                 res = suppressWarnings(Mclust(tmp_pca_mat, G = k, modelNames = "V", verbose = FALSE))
             }
@@ -83,7 +87,7 @@ FEAST = function (Y, k = 2, num_pcs = 10, dim_reduce = c("pca", "svd", "irlba"),
         mat_res = matrix(0, ncol = ncells, nrow = ncells)
         # write function for bplapply.
         bp_fun = function(i, pc_res, k){
-            tmp_pca_mat = pc_res[, 1:i]
+            tmp_pca_mat = pc_res[,seq_len(i)]
             if (i == 1) {
                 res = suppressWarnings(Mclust(tmp_pca_mat, G = k, modelNames = "V", verbose = FALSE))
             }
@@ -96,7 +100,7 @@ FEAST = function (Y, k = 2, num_pcs = 10, dim_reduce = c("pca", "svd", "irlba"),
             clusterid = apply(res$z, 1, which.max)
             return(clusterid)
         }
-        pc_cluster = bplapply(1:num_pcs, bp_fun, pc_res = pc_res, k=k, BPPARAM = BPPARAM)
+        pc_cluster = bplapply(seq_len(num_pcs), bp_fun, pc_res = pc_res, k=k, BPPARAM = BPPARAM)
         pc_mat = lapply(pc_cluster, vector2matrix)
         con_mat = Reduce("+", pc_mat)
 
@@ -118,11 +122,11 @@ FEAST = function (Y, k = 2, num_pcs = 10, dim_reduce = c("pca", "svd", "irlba"),
     }
     else{
         split_k = round(ncells / batch_size)
-        chunk_ixs = suppressWarnings(split(sample(ncol(Y)), 1:split_k))
+        chunk_ixs = suppressWarnings(split(sample(ncol(Y)), seq_len(split_k)))
         # write function for bplapply.
         bp_fun = function(i){
             cell_ixs = chunk_ixs[[i]]
-            tmp_pca_mat = pc_res[cell_ixs, 1:3]
+            tmp_pca_mat = pc_res[cell_ixs, seq_len(3)]
             res = suppressWarnings(Mclust(tmp_pca_mat, G = k, modelNames = "VVV", verbose = FALSE))
             if (is.null(res)){
                 res = suppressWarnings(Mclust(tmp_pca_mat, G = k, verbose = FALSE))
@@ -130,8 +134,8 @@ FEAST = function (Y, k = 2, num_pcs = 10, dim_reduce = c("pca", "svd", "irlba"),
             clusterid = apply(res$z, 1, which.max)
             return(clusterid)
         }
-        chunk_cluster = bplapply(1:split_k, bp_fun, BPPARAM=BPPARAM)
-        F_res_all = lapply(1:split_k, function(j){
+        chunk_cluster = bplapply(seq_len(split_k), bp_fun, BPPARAM=BPPARAM)
+        F_res_all = lapply(seq_len(split_k), function(j){
             cell_ixs = chunk_ixs[[j]]
             tmp_mat = Ynorm[, cell_ixs]
             tmp_cluster = chunk_cluster[[j]]
@@ -175,7 +179,7 @@ FEAST_fast = function (Y, k = 2, num_pcs = 10, split = FALSE, batch_size =1000, 
     gene_ranks = order(row_ms, decreasing = TRUE, na.last = TRUE)
     # this top number of features for pca can be adjusted. Using 1000 from rowMeans for fast calculation
     top = 1000
-    gene_ixs = gene_ranks[1:top]
+    gene_ixs = gene_ranks[seq_len(top)]
     YYnorm = Ynorm[gene_ixs, ]; ncells = ncol(Ynorm)
 
     # using the fast version from irlba
@@ -187,8 +191,8 @@ FEAST_fast = function (Y, k = 2, num_pcs = 10, split = FALSE, batch_size =1000, 
     # for windows platform, bpworkers(BPPARAM) == 1. Just use the simple loop (woops).
     if (is(BPPARAM, "SnowParam")){
         con_mat = matrix(0, ncol = ncells, nrow = ncells)
-        for (j in 1:num_pcs){
-            tmp_pca_mat = pc_res[, 1:j]
+        for (j in seq_len(num_pcs)){
+            tmp_pca_mat = pc_res[, seq_len(j)]
             if (j == 1) {
                 res = suppressWarnings(Mclust(tmp_pca_mat, G = k, modelNames = "V", verbose = FALSE))
             }
@@ -224,7 +228,7 @@ FEAST_fast = function (Y, k = 2, num_pcs = 10, split = FALSE, batch_size =1000, 
     if (ncells < 5000 & split == FALSE){
         mat_res = matrix(0, ncol = ncells, nrow = ncells)
         bp_fun = function(i){
-            tmp_pca_mat = pc_res[, 1:i]
+            tmp_pca_mat = pc_res[, seq_len(i)]
             if (i == 1) {
                 res = suppressWarnings(Mclust(tmp_pca_mat, G = k, modelNames = "V", verbose = FALSE))
             }
@@ -237,7 +241,7 @@ FEAST_fast = function (Y, k = 2, num_pcs = 10, split = FALSE, batch_size =1000, 
             clusterid = apply(res$z, 1, which.max)
             return(list(clusterid))
         }
-        pc_cluster = bplapply(1:num_pcs, bp_fun, BPPARAM=BPPARAM)
+        pc_cluster = bplapply(seq_len(num_pcs), bp_fun, BPPARAM=BPPARAM)
         pc_mat = lapply(pc_cluster, function(x){
             vector2matrix(x[[1]])
         })
@@ -264,10 +268,10 @@ FEAST_fast = function (Y, k = 2, num_pcs = 10, split = FALSE, batch_size =1000, 
     }
     else{
         split_k = round(ncells / batch_size)
-        chunk_ixs = suppressWarnings(split(sample(ncol(Y)), 1:split_k))
+        chunk_ixs = suppressWarnings(split(sample(ncol(Y)), seq_len(split_k)))
         bp_fun = function(i){
             cell_ixs = chunk_ixs[[i]]
-            tmp_pca_mat = pc_res[cell_ixs, 1:3]
+            tmp_pca_mat = pc_res[cell_ixs, seq_len(3)]
             res = suppressWarnings(Mclust(tmp_pca_mat, G = k, modelNames = "VVV", verbose = FALSE))
             if (is.null(res)){
                 res = suppressWarnings(Mclust(tmp_pca_mat, G = k, verbose = FALSE))
@@ -275,8 +279,8 @@ FEAST_fast = function (Y, k = 2, num_pcs = 10, split = FALSE, batch_size =1000, 
             clusterid = apply(res$z, 1, which.max)
             return(list(clusterid))
         }
-        chunk_cluster = bplapply(1:split_k, bp_fun, BPPARAM = BPPARAM)
-        F_res_all = lapply(1:split_k, function(j){
+        chunk_cluster = bplapply(seq_len(split_k), bp_fun, BPPARAM = BPPARAM)
+        F_res_all = lapply(seq_len(split_k), function(j){
             cell_ixs = chunk_ixs[[j]]
             tmp_mat = Ynorm[, cell_ixs]
             tmp_cluster = chunk_cluster[[j]]

@@ -30,7 +30,7 @@ cal_Fisher2 = function(Y, classes){
     row_ms = rowMeans(Y, na.rm = TRUE)
     row_mclasses = row_Varclasses = matrix(0, ncol = length(tb), nrow = nrow(Y))
 
-    for (i in 1:length(tb)){
+    for (i in seq_len(length(tb))){
         tmp_class = names(tb)[i]
         cix = which(classes==tmp_class)
         tmp_Y = Y[, cix]
@@ -73,7 +73,7 @@ cal_F2 = function(Y, classes){
     row_mean = rowMeans(Ynorm)
     k = length(unique(classes))
     pb = txtProgressBar( min = 0, max = k, style = 3)
-    for (i in 1:k){
+    for (i in seq_len(k)){
         setTxtProgressBar(pb, i)
         ix = which(classes == unique_classes[i])
         if (length(ix) > 1){
@@ -95,51 +95,4 @@ cal_F2 = function(Y, classes){
     ps = pf(F_scores, df1, df2, lower.tail = FALSE)
     return(list(F_scores = as.numeric(F_scores), ps = ps))
 }
-
-
-
-
-#Cal_Fisher_PS = function(Y, classes, nper = 1000, permutation = F){
-#    Y = as.matrix(Y)
-#    if(all(Y %%1 == 0)){
-#        L = colSums(Y) / median(colSums(Y))
-#        Y = log2(sweep(Y, 2, L, FUN="/") + 1)
-#    }
-#    cid = which(is.na(classes))
-#    if (length(cid) > 0){
-#        Y = Y[, -cid]
-#        classes = classes[-cid]
-#    }
-#    classes = as.factor(classes)
-#    Fisher_scores = cal_fisher2(Y, classes = classes)
-#    Fisher_scores = as.numeric(Fisher_scores)
-#    if (permutation == T){
-#        message("start permutation ")
-#        Fisher_scores = t(cal_fisher2(Y,classes = classes))
-#        Fisher_mat = matrix(0, ncol = nper, nrow = nrow(Y))
-#        pb = txtProgressBar( min = 0, max = nper, style = 3)
-#        for (i in 1:nper){
-#            setTxtProgressBar(pb, i)
-#            tmp_classes = sample(classes)
-#            tmp_fisher = cal_fisher2(Y, classes = tmp_classes)
-#            Fisher_mat[,i] = tmp_fisher
-#        }
-#        close(pb)
-#        Fisher_mat = cbind(Fisher_scores, Fisher_mat)
-#        p_perm = 1- apply(Fisher_mat, 1, function(x) mean(x[1]>x[-1]))
-#        res = list(Fisher_scores = Fisher_scores, ps = p_perm)
-#    }else{
-#        message("start calculating F and p values ")
-#        res = cal_F2(Y, classes = classes)
-#        padj = p.adjust(res$ps, method = "BH")
-#        res = list(Fisher_scores = Fisher_scores, F_scores = res$F_scores,
-#                   ps = res$ps, padj = padj)
-#    }
-#    return(res)
-#}
-
-
-
-
-
 

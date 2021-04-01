@@ -1,33 +1,31 @@
 Package: FEAST
 Type: Package
 Title: FEAture SelcTion (FEAST) for Single-cell clustering
-Version: 0.99.13
-Authors@R:
-    c(person("Kenong","Su", email ="kenong.su@emory.edu", role = c("aut", "cre")),
-    person("Hao","Wu", email ="hao.wu@emory.edu", role ="aut"))
-Description: FEAST is an R library for selecting most representative features before performing the core of scRNA-seq clustering.
+Version: 0.99.15
+Authors@R: c(person("Kenong","Su", email ="kenong.su@emory.edu", role = c("aut","cre")),person("Hao","Wu", email ="hao.wu@emory.edu", role ="aut"))
+Description: Cell clustering is one of the most important and commonly performed tasks in single-cell RNA sequencing (scRNA-seq) data analysis. 
+            An important step in cell clustering is to select a subset of genes (referred to as “features”), whose expression patterns will then 
+            be used for downstream clustering. A good set of features should include the ones that distinguish different cell types, 
+            and the quality of such set could have significant impact on the clustering accuracy. 
+            FEAST is an R library for selecting most representative features before performing the core of scRNA-seq clustering. It can be used 
+            as a plug-in for the etablished clustering algorithms such as SC3, TSCAN, SHARP, SIMLR, and Seurat. 
             The core of FEAST algorithm includes three steps:
             1. consensus clustering;
             2. gene-level significance inference;
             3. validation of an optimized feature set.
 License: GPL-2
 Encoding: UTF-8
-LazyData: false
-Depends:
-    R (>= 4.0), limma, knitr, aricode, assertthat, mclust, SingleCellExperiment, BiocParallel, irlba
+LazyData: true
+Depends:R (>= 4.1), mclust, BiocParallel, TSCAN, SC3, SingleCellExperiment
 biocViews: Sequencing, SingleCell, Clustering, FeatureExtraction
 BugReports: https://github.com/suke18/FEAST/issues
-Imports:
-    limma,
-    mclust,
-    aricode,
-    BiocParallel,
-    assertthat,
+Imports: Biobase, limma, knitr, SingleCellExperiment, methods, stats, utils, irlba, ggpubr
+Suggests: 
+    rmarkdown,
+    Seurat,
+    ggpubr,
     knitr,
-    irlba,
-    SingleCellExperiment,
-    Biobase,
-    SC3
-Suggets: Seurat, TSCAN, SHARP
+    testthat (>= 3.0.0),
+    BiocStyle
 VignetteBuilder: knitr
 RoxygenNote: 7.1.1

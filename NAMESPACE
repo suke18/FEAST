@@ -1,15 +1,19 @@
 useDynLib(FEAST, .registration=TRUE)
 
 import(SC3)
+import(TSCAN)
 import(BiocParallel)
 import(mclust)
 import(Biobase)
 import(limma)
-import(aricode)
-import(assertthat)
 import(knitr)
 import(irlba)
+import(ggpubr)
 import(SingleCellExperiment)
+importFrom("methods", "is")
+importFrom("stats", "kmeans", "lm", "median", "model.matrix", "pf", "prcomp")
+importFrom("utils", "combn", "setTxtProgressBar", "txtProgressBar")
+
 
 export(
     FEAST,
@@ -23,5 +27,7 @@ export(
     process_Y,
     Norm_Y,
     align_CellType,
-    Visual_Rslt
+    Visual_Rslt,
+    Select_Model_short_SC3,
+    Select_Model_short_TSCAN
 )

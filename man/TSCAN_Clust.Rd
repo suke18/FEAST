@@ -24,9 +24,7 @@ the clustering labels and the featured genes.
 TSCAN Clustering
 }
 \examples{
-\donttest{
  data(Yan)
  k = length(unique(trueclass))
- TSCAN_res = TSCAN_Clust(Y, k=k)
-}
+ # TSCAN_res = TSCAN_Clust(Y, k=k)
 }
