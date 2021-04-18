@@ -189,7 +189,7 @@ FEAST_fast = function (Y, k = 2, num_pcs = 10, split = FALSE, batch_size =1000, 
 
     # setup for parallel computing. register for bplapply.
     # for windows platform, bpworkers(BPPARAM) == 1. Just use the simple loop (woops).
-    if (is(BPPARAM, "SnowParam")){
+    if (.Platform$OS.type=="windows"){
         con_mat = matrix(0, ncol = ncells, nrow = ncells)
         for (j in seq_len(num_pcs)){
             tmp_pca_mat = pc_res[, seq_len(j)]
