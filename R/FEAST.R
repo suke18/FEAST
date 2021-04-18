@@ -50,7 +50,7 @@ FEAST = function (Y, k = 2, num_pcs = 10, dim_reduce = c("pca", "svd", "irlba"),
 
     # setup for parallel computing. if it is SnowParam, it means on windows
     message("start consensus clustering ...")
-    if (is(BPPARAM, "SnowParam")){
+    if (.Platform$OS.type=="windows"){
         con_mat = matrix(0, ncol = ncells, nrow = ncells)
         for (j in seq_len(num_pcs)){
             tmp_pca_mat = pc_res[, seq_len(j)]
