@@ -166,7 +166,7 @@ FEAST = function (Y, k = 2, num_pcs = 10, dim_reduce = c("pca", "svd", "irlba"),
 #' k = length(unique(trueclass))
 #' res = FEAST_fast(Y, k=k)
 #' @export
-FEAST_fast = function (Y, k = 2, num_pcs = 10, split = FALSE, batch_size =1000, BPPARAM=SnowParam()){
+FEAST_fast = function (Y, k = 2, num_pcs = 10, split = FALSE, batch_size =1000, BPPARAM=bpparam()){
     if (all(Y%%1 == 0)) {
         L = colSums(Y)/median(colSums(Y))
         Ynorm = log(sweep(Y, 2, L, FUN = "/") + 1)
