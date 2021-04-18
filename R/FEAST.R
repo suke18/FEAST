@@ -277,7 +277,7 @@ FEAST_fast = function (Y, k = 2, num_pcs = 10, split = FALSE, batch_size =1000, 
                 res = suppressWarnings(Mclust(tmp_pca_mat, G = k, verbose = FALSE))
             }
             clusterid = apply(res$z, 1, which.max)
-            return(list(clusterid))
+            return(clusterid)
         }
         chunk_cluster = bplapply(seq_len(split_k), bp_fun, BPPARAM = BPPARAM)
         F_res_all = lapply(seq_len(split_k), function(j){
