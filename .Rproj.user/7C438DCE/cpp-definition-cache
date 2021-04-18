@@ -1,0 +1,17 @@
+[
+    {
+        "file": "/Users/kenongsu/Github/FEAST/src/cal_3_metrics.c",
+        "file_last_write": 1616379453.0,
+        "definitions": [
+            {
+                "usr": "c:@F@cal_3_metrics",
+                "kind": 6,
+                "parent_name": "",
+                "name": "cal_3_metrics(int *, int *, int *, int *, int *, int *, int *, int *, double *)",
+                "file": "/Users/kenongsu/Github/FEAST/src/cal_3_metrics.c",
+                "line": 36,
+                "column": 6
+            }
+        ]
+    }
+]
