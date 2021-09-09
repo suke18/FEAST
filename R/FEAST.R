@@ -28,7 +28,7 @@
 #' @import mclust
 #' @import irlba
 #' @export
-FEAST = function (Y, k = 2, num_pcs = 10, dim_reduce = c("irlba", "svd", "pca"), 
+FEAST = function (Y, k = 2, num_pcs = 10, dim_reduce = c("pca", "svd", "irlba"), 
                   split = FALSE, batch_size =1000, nProc = 1){
     if (all(Y%%1 == 0)) {
         L = colSums(Y)/median(colSums(Y))
@@ -159,7 +159,7 @@ FEAST_fast = function (Y, k = 2, num_pcs = 10, split = FALSE, batch_size =1000, 
     }
 
     # dimention reduction part
-    message("start dimention reduction ...")
+    message("start dimention reduction using irlba ...")
     row_ms = rowMeans(Ynorm, na.rm = TRUE)
     gene_ranks = order(row_ms, decreasing = TRUE, na.last = TRUE)
     # this top number of features for pca can be adjusted. Using 1000 from rowMeans for fast calculation
