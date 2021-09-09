@@ -3,29 +3,6 @@
 #########################################################################################
 
 
-#' Standard way to preprocess the gene expression data in SC3 method
-#'
-#' @param Y A gene expression data (Raw count matrix)
-#' @return A processed gene expression matrix. It is already log transformed and normalized by CPM
-log_TPM_SC3 = function(Y){
-    Y = as.matrix(Y)
-    #' Followed by the step from SC3 to do the gene filtering.
-    #' > 2 counts and < 6%; expressed in more than 94% of the cells
-    row_means = rowMeans(Y)
-    row_expr_rate = rowMeans(Y!=0)
-    ncells = ncol(Y)
-    id1 = intersect(which(row_means > 2), which(row_expr_rate < 0.06))
-    id2 = intersect(which(row_means > 0), which(row_expr_rate > 0.94))
-    id3 = which(colSds(Y) < 1e-5)
-    rem_id = Reduce(union, list(id1, id2, id3))
-    if (! is.null(rem_id)){Y = Y[-rem_id, ]}
-    L = colSums(Y)/1e6
-    Y = log(sweep(Y, 2, L, FUN="/") + 1)
-    return(Y)
-}
-
-
-
 #' Standard way to preprocess the count matrix. It is the QC step for the genes.
 #'
 #' @param Y A gene expression data (Raw count matrix)
@@ -62,6 +39,7 @@ process_Y = function(Y, thre = 2){
 #' Ynorm = Norm_Y(Y)
 #' cluster = trueclass
 #' MSE_res = cal_MSE(Ynorm, cluster)
+#' @importFrom stats model.matrix
 #' @export
 cal_MSE = function(Ynorm, cluster, return_mses = FALSE){
     Xregressor = model.matrix(~as.factor(cluster)-1)
@@ -93,5 +71,34 @@ Norm_Y = function(Y){
     return(Ynorm)
 }
 
-
+#' set up for the parallel computing for biocParallel.
+#'
+#' This function sets up the environment for parallel computing.
+#' @param nProc number of processors
+#' @param BPPARAM bpparameter from bpparam
+#' @keywords internal
+#' @return BAPPARAM settings
+#' @examples 
+#' setUp_BPPARAM(nProc=1)
+#' @export
+setUp_BPPARAM = function (nProc = 0, BPPARAM = NULL)
+{
+    if (is.null(BPPARAM)) {
+        if (nProc != 0) {
+            if (.Platform$OS.type == "windows") {
+                result <- SnowParam(workers = nProc)
+            }
+            else {
+                result <- MulticoreParam(workers = nProc)
+            }
+        }
+        else {
+            result <- bpparam()
+        }
+        return(result)
+    }
+    else {
+        return(BPPARAM)
+    }
+}
 

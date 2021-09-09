@@ -11,7 +11,7 @@
 #' @param dim_reduce dimension reduction methods chosen from pca, svd, or irlba.
 #' @param split boolean. If T, using subsampling to calculate the gene-level significance.
 #' @param batch_size when split is true, need to claim the batch size for spliting the cells.
-#' @param BPPARAM parameters for BiocParallel. e.g. bpparam() and SnowParam.
+#' @param nProc number of cores for BiocParallel enviroment. 
 #' @return the rankings of the gene-significance.
 #' @examples
 #' data(Yan)
@@ -21,15 +21,21 @@
 #' cixs = sample(ncol(Y), 40)
 #' Y = Y[rixs, cixs]
 #' ixs = FEAST(Y, k=k)
+#' @importFrom utils setTxtProgressBar txtProgressBar
+#' @importFrom stats kmeans pf prcomp
+#' @importFrom matrixStats rowSds
+#' @import BiocParallel
+#' @import mclust
+#' @import irlba
 #' @export
-FEAST = function (Y, k = 2, num_pcs = 10, dim_reduce = c("pca", "svd", "irlba"), split = FALSE, batch_size =1000, BPPARAM=bpparam()){
+FEAST = function (Y, k = 2, num_pcs = 10, dim_reduce = c("irlba", "svd", "pca"), 
+                  split = FALSE, batch_size =1000, nProc = 1){
     if (all(Y%%1 == 0)) {
         L = colSums(Y)/median(colSums(Y))
         Ynorm = log(sweep(Y, 2, L, FUN = "/") + 1)
     }else{
         Ynorm = Y
     }
-
     # dimention reduction part
     row_ms = rowMeans(Ynorm, na.rm = TRUE)
     row_sds = rowSds(Y, na.rm = TRUE)
@@ -43,6 +49,7 @@ FEAST = function (Y, k = 2, num_pcs = 10, dim_reduce = c("pca", "svd", "irlba"),
     dim_reduce = match.arg(dim_reduce)
 
     # starting dimention reduction.
+    message("start dimention reduction ...")
     pc_res = switch(dim_reduce,
                     pca = prcomp(t(YYnorm))$x,
                     svd = svd(t(YYnorm))$u,
@@ -50,41 +57,11 @@ FEAST = function (Y, k = 2, num_pcs = 10, dim_reduce = c("pca", "svd", "irlba"),
 
     # setup for parallel computing. if it is SnowParam, it means on windows
     message("start consensus clustering ...")
-    if (.Platform$OS.type=="windows"){
-        con_mat = matrix(0, ncol = ncells, nrow = ncells)
-        for (j in seq_len(num_pcs)){
-            tmp_pca_mat = pc_res[, seq_len(j)]
-            if (j == 1) {
-                res = suppressWarnings(Mclust(tmp_pca_mat, G = k, modelNames = "V", verbose = FALSE))
-            }
-            else {
-                res = suppressWarnings(Mclust(tmp_pca_mat, G = k, modelNames = "VVV", verbose = FALSE))
-            }
-            if (is.null(res)){
-                res = suppressWarnings(Mclust(tmp_pca_mat, G = k, verbose = FALSE))
-            }
-            clusterid = apply(res$z, 1, which.max)
-            con_mat = con_mat + vector2matrix(clusterid)
-        }
-        res = suppressWarnings(Mclust(con_mat, G = k, modelNames = "VII",  verbose = FALSE))
-        if (is.null(res)) {
-            res = suppressWarnings(Mclust(con_mat, G = k, verbose = FALSE))
-        }
-        cluster = apply(res$z, 1, function(x) {
-            id = which(x > 0.95)
-            if (length(id) == 0) {
-                return(NA)
-            }
-            else {
-                return(id)
-            }
-        })
-        F_scores = cal_F2(Ynorm, classes = cluster)$F_scores
-    }
+    BPPARAM = setUp_BPPARAM(nProc = nProc)
+    con_mat = matrix(0, ncol = ncells, nrow = ncells)
     # consensus clustering for less cells (<5000)
     BPPARAM$progressbar = TRUE
-    if (ncol(Ynorm) < 5000 & split == FALSE){
-        mat_res = matrix(0, ncol = ncells, nrow = ncells)
+    if (ncol(Ynorm) < 3000 & split == FALSE){
         # write function for bplapply.
         bp_fun = function(i, pc_res, k){
             tmp_pca_mat = pc_res[,seq_len(i)]
@@ -105,6 +82,7 @@ FEAST = function (Y, k = 2, num_pcs = 10, dim_reduce = c("pca", "svd", "irlba"),
         con_mat = Reduce("+", pc_mat)
 
         # final clustering
+        message("start final clustering ...")
         res = suppressWarnings(Mclust(con_mat, G = k, modelNames = "VII",  verbose = FALSE))
         if (is.null(res)) {
             res = suppressWarnings(Mclust(con_mat, G = k, verbose = FALSE))
@@ -159,14 +137,20 @@ FEAST = function (Y, k = 2, num_pcs = 10, dim_reduce = c("pca", "svd", "irlba"),
 #' @param num_pcs The number of top pcs that will be investigated through the consensus clustering.
 #' @param split boolean. If T, using subsampling to calculate the gene-level significance.
 #' @param batch_size when split is true, need to claim the batch size for spliting the cells.
-#' @param BPPARAM parameters for BiocParallel. e.g. bpparam() and SnowParam.
+#' @param nProc number of cores for BiocParallel enviroment. 
 #' @return the rankings of the gene-significance.
 #' @examples
 #' data(Yan)
 #' k = length(unique(trueclass))
 #' res = FEAST_fast(Y, k=k)
+#' @importFrom utils setTxtProgressBar txtProgressBar
+#' @importFrom stats kmeans pf prcomp
+#' @importFrom stats median
+#' @import BiocParallel
+#' @import mclust
+#' @import irlba
 #' @export
-FEAST_fast = function (Y, k = 2, num_pcs = 10, split = FALSE, batch_size =1000, BPPARAM=bpparam()){
+FEAST_fast = function (Y, k = 2, num_pcs = 10, split = FALSE, batch_size =1000, nProc = 1){
     if (all(Y%%1 == 0)) {
         L = colSums(Y)/median(colSums(Y))
         Ynorm = log(sweep(Y, 2, L, FUN = "/") + 1)
@@ -175,13 +159,13 @@ FEAST_fast = function (Y, k = 2, num_pcs = 10, split = FALSE, batch_size =1000, 
     }
 
     # dimention reduction part
+    message("start dimention reduction ...")
     row_ms = rowMeans(Ynorm, na.rm = TRUE)
     gene_ranks = order(row_ms, decreasing = TRUE, na.last = TRUE)
     # this top number of features for pca can be adjusted. Using 1000 from rowMeans for fast calculation
     top = 1000
     gene_ixs = gene_ranks[seq_len(top)]
     YYnorm = Ynorm[gene_ixs, ]; ncells = ncol(Ynorm)
-
     # using the fast version from irlba
     Ynorm_scale = scale(YYnorm, scale=TRUE, center=TRUE)
     pca_res = prcomp_irlba(t(Ynorm_scale), n=10)
@@ -189,44 +173,10 @@ FEAST_fast = function (Y, k = 2, num_pcs = 10, split = FALSE, batch_size =1000, 
 
     # setup for parallel computing. register for bplapply.
     # for windows platform, bpworkers(BPPARAM) == 1. Just use the simple loop (woops).
-    if (.Platform$OS.type=="windows"){
-        con_mat = matrix(0, ncol = ncells, nrow = ncells)
-        for (j in seq_len(num_pcs)){
-            tmp_pca_mat = pc_res[, seq_len(j)]
-            if (j == 1) {
-                res = suppressWarnings(Mclust(tmp_pca_mat, G = k, modelNames = "V", verbose = FALSE))
-            }
-            else {
-                res = suppressWarnings(Mclust(tmp_pca_mat, G = k, modelNames = "VVV", verbose = FALSE))
-            }
-            if (is.null(res)){
-                res = suppressWarnings(Mclust(tmp_pca_mat, G = k, verbose = FALSE))
-            }
-            clusterid = apply(res$z, 1, which.max)
-            con_mat = con_mat + vector2matrix(clusterid)
-        }
-        km = kmeans(con_mat, k)
-        cluster = km$cluster
-        F_scores = cal_F2(Ynorm, classes = cluster)$F_scores
-    }
-
-    # pb = txtProgressBar(min=1, max=num_pcs-1,style=3)
-    # f = function(){
-    #     count = 0
-    #     function(...) {
-    #         count <<- count + length(list(...)) - 1
-    #         setTxtProgressBar(pb,count)
-    #         Sys.sleep(0.0001)
-    #         flush.console()
-    #         c(...)
-    #     }
-    # }
-
     message("start consensus clustering ...")
-    # consensus clustering for less cells (<5000)
+    BPPARAM = setUp_BPPARAM(nProc=nProc)
     BPPARAM$progressbar = TRUE
-    if (ncells < 5000 & split == FALSE){
-        mat_res = matrix(0, ncol = ncells, nrow = ncells)
+    if (ncells < 3000 & split == FALSE){
         bp_fun = function(i){
             tmp_pca_mat = pc_res[, seq_len(i)]
             if (i == 1) {
@@ -247,22 +197,11 @@ FEAST_fast = function (Y, k = 2, num_pcs = 10, split = FALSE, batch_size =1000, 
         })
         con_mat = Reduce("+", pc_mat)
         message("!!! done !!!")
-        # sometimes hclust can be unbalanced, pam can be slow. Thus, using kmeans of is an option.Might be influenced by the outliers.
+        # change the final clustering to kmeans. 
+        # sometimes hclust can be unbalanced, pam can be slow. Thus, resorting to kmeans 
+        # but might be influenced by the outliers.
         km = kmeans(con_mat, k)
         cluster = km$cluster
-        # res = suppressWarnings(Mclust(con_mat, G = k, modelNames = "VII",  verbose = F))
-        # if (is.null(res)) {
-        #     res = suppressWarnings(Mclust(con_mat, G = k, verbose = F))
-        # }
-        # cluster = apply(res$z, 1, function(x) {
-        #     id = which(x > 0.95)
-        #     if (length(id) == 0) {
-        #         return(NA)
-        #     }
-        #     else {
-        #         return(id)
-        #     }
-        # })
         message("calculate F scores")
         F_scores = cal_F2(Ynorm, classes = cluster)$F_scores
     }

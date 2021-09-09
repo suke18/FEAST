@@ -15,6 +15,8 @@
 #' con_res = Consensus(Y, k=k)
 #' # not run
 #' # mod_res = Select_Model_short_SC3(Y, cluster = con_res$cluster, top = c(100, 200))
+#' @importFrom stats median
+#' @importFrom matrixStats colVars
 #' @export
 Select_Model_short_SC3 = function(Y, cluster, tops = c(500, 1000, 2000)){
     # make sure the labels and the cells are one-to-one match
@@ -83,6 +85,7 @@ Select_Model_short_SC3 = function(Y, cluster, tops = c(500, 1000, 2000)){
 #' con_res = Consensus(Y, k=k)
 #' # not run
 #' # mod_res = Select_Model_short_TSCAN(Y, cluster = con_res$cluster, top = c(100, 200))
+#' @importFrom stats median
 #' @export
 Select_Model_short_TSCAN = function(Y, cluster, minexpr_percent = 0.5, cvcutoff = 1, tops = c(500, 1000, 2000)){
     # make sure the labels and the cells are one-to-one match

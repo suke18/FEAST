@@ -1,9 +1,8 @@
 Package: FEAST
 Type: Package
 Title: FEAture SelcTion (FEAST) for Single-cell clustering
-Version: 0.99.16
-Author: Kenong Su<kenong.su@emory.edu>
-Maintainer: Kenong Su<kenong.su@emory.edu>
+Version: 1.1.2
+Authors@R: c(person("Kenong","Su", email ="kenong.su@emory.edu", role = c("aut","cre")),person("Hao","Wu", email ="hao.wu@emory.edu", role ="aut"))
 Description: Cell clustering is one of the most important and commonly performed tasks in single-cell RNA sequencing (scRNA-seq) data analysis. 
             An important step in cell clustering is to select a subset of genes (referred to as “features”), whose expression patterns will then 
             be used for downstream clustering. A good set of features should include the ones that distinguish different cell types, 
@@ -17,16 +16,17 @@ Description: Cell clustering is one of the most important and commonly performed
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
-Depends:R (>= 4.0), mclust, BiocParallel, TSCAN, SC3, matrixStats
+Depends: R (>= 4.1), mclust, BiocParallel, SummarizedExperiment
 biocViews: Sequencing, SingleCell, Clustering, FeatureExtraction
 BugReports: https://github.com/suke18/FEAST/issues
-Imports: Biobase, limma, SingleCellExperiment, methods, stats, utils, irlba
-Suggests: 
-    rmarkdown,
-    Seurat,
-    ggpubr,
-    knitr,
-    testthat (>= 3.0.0),
-    BiocStyle
+Imports: SingleCellExperiment, methods, stats, utils, irlba, TSCAN,
+        SC3, matrixStats
+Suggests: rmarkdown, Seurat, ggpubr, knitr, testthat (>= 3.0.0),
+        BiocStyle
 VignetteBuilder: knitr
 RoxygenNote: 7.1.1
+NeedsCompilation: yes
+Packaged: 2021-09-07 07:02:20 UTC; kenongsu
+Author: Kenong Su [aut, cre],
+  Hao Wu [aut]
+Maintainer: Kenong Su <kenong.su@emory.edu>

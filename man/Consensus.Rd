@@ -4,10 +4,10 @@
 \alias{Consensus}
 \title{Consensus Clustering}
 \usage{
-Consensus(Y, num_pcs = 10, top_pctg = 0.33, k = 2, thred = 0.9)
+Consensus(Y, num_pcs = 10, top_pctg = 0.33, k = 2, thred = 0.9, nProc = 1)
 }
 \arguments{
-\item{Y}{A expression matrix. It is recommended to use the raw count matrix.}
+\item{Y}{A expression matrix. It is recommended to use the raw count matrix. Users can input normalized matrix directly.}
 
 \item{num_pcs}{The number of top pcs that will be investigated on through consensus clustering.}
 
@@ -16,6 +16,8 @@ Consensus(Y, num_pcs = 10, top_pctg = 0.33, k = 2, thred = 0.9)
 \item{k}{The number of input clusters (best guess).}
 
 \item{thred}{For the final GMM clustering, the probability of a cell belonging to a certain cluster.}
+
+\item{nProc}{number of cores for BiocParallel enviroment.}
 }
 \value{
 the clustering labels and the featured genes.

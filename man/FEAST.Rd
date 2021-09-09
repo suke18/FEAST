@@ -8,10 +8,10 @@ FEAST(
   Y,
   k = 2,
   num_pcs = 10,
-  dim_reduce = c("pca", "svd", "irlba"),
+  dim_reduce = c("irlba", "svd", "pca"),
   split = FALSE,
   batch_size = 1000,
-  BPPARAM = bpparam()
+  nProc = 1
 )
 }
 \arguments{
@@ -27,7 +27,7 @@ FEAST(
 
 \item{batch_size}{when split is true, need to claim the batch size for spliting the cells.}
 
-\item{BPPARAM}{parameters for BiocParallel. e.g. bpparam() and SnowParam.}
+\item{nProc}{number of cores for BiocParallel enviroment.}
 }
 \value{
 the rankings of the gene-significance.

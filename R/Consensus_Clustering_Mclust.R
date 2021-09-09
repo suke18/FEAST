@@ -1,6 +1,7 @@
 #' function for convert a vector to a binary matrix
 #' @param vec a vector.
 #' @return a n by n binary matrix indicating the adjacency.
+#' @importFrom utils combn
 vector2matrix = function(vec){
     mat = matrix(0, nrow = length(vec), ncol = length(vec))
     diag(mat) = diag(mat) + 1
@@ -18,9 +19,10 @@ vector2matrix = function(vec){
 
 #' Consensus Clustering
 #'
-#' @param Y A expression matrix. It is recommended to use the raw count matrix.
+#' @param Y A expression matrix. It is recommended to use the raw count matrix. Users can input normalized matrix directly. 
 #' @param num_pcs The number of top pcs that will be investigated on through consensus clustering.
 #' @param k The number of input clusters (best guess).
+#' @param nProc number of cores for BiocParallel enviroment. 
 #' @param top_pctg Top percentage of features for dimension reduction
 #' @param thred For the final GMM clustering, the probability of a cell belonging to a certain cluster.
 #' @return the clustering labels and the featured genes.
@@ -31,13 +33,17 @@ vector2matrix = function(vec){
 #' cixs = sample(ncol(Y), 40)
 #' Y = Y[rixs, cixs]
 #' con = Consensus(Y, k=5)
+#' @importFrom stats median
+#' @importFrom matrixStats rowVars
+#' @importFrom matrixStats rowSds
 #' @export
-Consensus = function(Y, num_pcs = 10, top_pctg = 0.33, k =2, thred = 0.9){
+Consensus = function(Y, num_pcs = 10, top_pctg = 0.33, k =2, thred = 0.9, nProc = 1){
     if (all(Y %%1 == 0)){
         L = colSums(Y) / median(colSums(Y))
         Y = log(sweep(Y, 2, L, FUN="/") + 1)
     }
     # select some genes (by top 50% cv) and do pca
+    message("start dimention reduction ...")
     rm_ix = which(rowVars(Y) == 0)
     if (length(rm_ix) > 0) Y = Y[-rm_ix, ]
     row_ms = rowMeans(Y, na.rm = TRUE)
@@ -48,29 +54,35 @@ Consensus = function(Y, num_pcs = 10, top_pctg = 0.33, k =2, thred = 0.9){
     ixs = gene_ranks[seq_len(top)]
     Y = Y[ixs, ]
     pca_out = prcomp(t(Y))
+    pc_res = pca_out$x
     # consensus clustering
-    mat_res = matrix(0, ncol = ncol(Y), nrow = ncol(Y))
     message("start consensus clustering ...")
-    pb = txtProgressBar(min = 0, max = num_pcs, style = 3)
-    for (i in seq_len(num_pcs)){
-        setTxtProgressBar(pb, i)
-        pca_mat = pca_out$x[, seq_len(i)]
-        if (i ==1){
-            res = suppressWarnings(Mclust(pca_mat, G = k, modelNames = "V", verbose = FALSE))
-        }else{
-            res = suppressWarnings(Mclust(pca_mat, G = k, modelNames = "VVV", verbose = FALSE))
+    BPPARAM = setUp_BPPARAM(nProc=nProc)
+    BPPARAM$progressbar = TRUE
+    bp_fun = function(i, pc_res, k){
+        tmp_pca_mat = pc_res[,seq_len(i)]
+        if (i == 1) {
+            res = suppressWarnings(Mclust(tmp_pca_mat, G = k, modelNames = "V", verbose = FALSE))
         }
-        if (is.null(res)) res = suppressWarnings(Mclust(pca_mat, G = k, verbose = FALSE))
+        else {
+            res = suppressWarnings(Mclust(tmp_pca_mat, G = k, modelNames = "VVV", verbose = FALSE))
+        }
+        if (is.null(res)){
+            res = suppressWarnings(Mclust(tmp_pca_mat, G = k, verbose = FALSE))
+        }
         clusterid = apply(res$z, 1, which.max)
-        mat = vector2matrix(clusterid)
-        mat_res = mat_res + mat
+        return(clusterid)
     }
+    pc_cluster = bplapply(seq_len(num_pcs), bp_fun, pc_res = pc_res, k=k, BPPARAM = BPPARAM)
+    pc_mat = lapply(pc_cluster, vector2matrix)
+    con_mat = Reduce("+", pc_mat)
+
     # final step of clustering
-    res = suppressWarnings(Mclust(mat_res, G = k, modelNames = "VII", verbose = FALSE))
+    message("start final clustering ...")
+    res = suppressWarnings(Mclust(con_mat, G = k, modelNames = "VII", verbose = FALSE))
     if (is.null(res)){
-        res = suppressWarnings(Mclust(mat_res, G = k, verbose = FALSE))
+        res = suppressWarnings(Mclust(con_mat, G = k, verbose = FALSE))
     }
-    close(pb)
     cluster = apply(res$z, 1, function(x){
         id = which(x > thred)
         if (length(id) == 0){
@@ -79,6 +91,6 @@ Consensus = function(Y, num_pcs = 10, top_pctg = 0.33, k =2, thred = 0.9){
             return(id)
         }
     })
-    return(list(mat_res = mat_res, cluster = cluster))
+    return(list(mat_res = con_mat, cluster = cluster))
 }
 

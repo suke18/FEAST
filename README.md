@@ -18,12 +18,12 @@ This tutorial introduces the basic functionalities of FEAST. Please use the vign
 ### 1. Software Installation
 ```
 library(devtools)
-install_github("suke18/FEAST", dependencies=T)
+install_github("suke18/FEAST", dependencies=T, build_vignettes = T)
 library(FEAST)
 ```
 
 ### 2. Quick Start
-The sample data can be found at https://drive.google.com/drive/folders/1SRT7mrX7ziJoSjuFLLkK8kjnUsJrabVM?usp=sharing.
+The pipeline can be accessed by a wrapped-up function `FEAST`. Here, we show an example by using Deng dataset, which can be found at https://drive.google.com/drive/folders/1SRT7mrX7ziJoSjuFLLkK8kjnUsJrabVM?usp=sharing.
 ```
 load("pathto/Deng.RData")
 Deng # load the Deng dataset, which includes 6 cell types (268 cells).
@@ -35,7 +35,7 @@ Y = assays(Deng)$counts
 The gene ranks can be obtained from the following step. `Y` is the count matrix (by default) or processed normalized matrix. Note, genes with extreme high dropout rates need to be removed. `k` is the number of clusters. It will return the gene index ranked from the most significant to the least significant.
 ```
 Y = process_Y(Y, thre = 2)
-ixs = FEAST(Y, k=k)
+ixs = FEAST(Y, k=k) # This is the main step.
 # look at the top features
 Ynorm = Norm_Y(Y)
 par(mfrow = c(3,3))
@@ -96,9 +96,9 @@ Visual_Rslt(model_cv_res = mod_res, trueclass = trueclass)
   </p>
 
 ### 5. Performance on other datasets
-Here, we show the performance for Yan and Goolam datasets. In some datasets, the performance gain can be significant.
+Here, we show the performance for Yan and Goolam datasets.
 
-Yan Dataset            |  Goolam Dataset
+Yan Dataset            |  Goolam Ocean
 :-------------------------:|:-------------------------:
 ![](vignettes/Yan_performance.png)  |  ![](vignettes/Goolam_performance.png)
 
@@ -111,7 +111,7 @@ k = length(unique(trueclass))
 Y = assay(Zheng, "counts")
 Y = process_Y(Y)
 ixs1  = FEAST_fast(Y, k=k)
-ixs2  = FEAST_fast(Y, k=k, split = T, batch_size = 1000)
+ixs2  = FEAST(Y, k=k, split = T, batch_size = 1000)
 ```
 
 If we look at the top features from **ixs1** or **ixs2** rankings, we can see the they are very informative.

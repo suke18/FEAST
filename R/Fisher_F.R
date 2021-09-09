@@ -54,6 +54,7 @@ cal_Fisher2 = function(Y, classes){
 #' @examples
 #' data(Yan)
 #' cal_F2(Y, classes = trueclass)
+#' @importFrom stats median
 #' @export
 cal_F2 = function(Y, classes){
     if (all(Y%%1 == 0)){

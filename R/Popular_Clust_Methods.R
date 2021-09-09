@@ -13,11 +13,10 @@
 #' @param k The number of clusters. If it is not provided, k is estimated by the default method in SC3.
 #' @param input_markers A character vector including the featured genes. If they are not presented, SC3 will take care of this.
 #' @return the clustering labels and the featured genes.
-#' @examples
-#'  data(Yan)
-#'  k = length(unique(trueclass))
-#'  Y = Y[1:3000, ]
-#'  res = SC3_Clust(Y, k=k)
+#' @importFrom matrixStats colVars
+#' @import SingleCellExperiment
+#' @import SummarizedExperiment
+#' @import SC3
 #' @export
 SC3_Clust = function(Y, k = NULL, input_markers = NULL){
     # Y is the count matrix
@@ -79,6 +78,8 @@ SC3_Clust = function(Y, k = NULL, input_markers = NULL){
 #'  data(Yan)
 #'  k = length(unique(trueclass))
 #'  # TSCAN_res = TSCAN_Clust(Y, k=k)
+#' @import TSCAN
+#' @importFrom stats lm
 #' @export
 TSCAN_Clust = function(Y, k, minexpr_percent = 0.5, cvcutoff = 1, input_markers = NULL) {
     # Here k is a vector for BIC calculation in Mclust function.
@@ -118,40 +119,40 @@ TSCAN_Clust = function(Y, k, minexpr_percent = 0.5, cvcutoff = 1, input_markers 
 
 
 
-#' Seurat Clustering
-#'
-#' @param Y A expression matrix. It is recommended to use the raw count matrix.
-#' @param knn of nearest neighbors (knn).
-#' @param input_markers A character vector including the featured genes. If they are not presented, SC3 will take care of this.
-#' @param resolution clustering resolution (0, 1) (default = 0.5).
-#' @return the clustering labels and the featured genes.
-Seurat_Clust = function(Y, knn = 10, resolution = 0.5, input_markers = NULL){
-    #' input_markers is a character vector
-    seuset = CreateSeuratObject(counts = Y)
-    seuset = NormalizeData(object = seuset, normalization.method = "LogNormalize")
-    if (! is.null(input_markers)){
-        seuset@assays$RNA@var.features  = input_markers
-        markers = input_markers
-    }else{
-        seuset = FindVariableFeatures(object = seuset, selection.method = "vst")
-        markers = seuset@assays$RNA@var.features
-    }
-    seuset = ScaleData(object = seuset)
-    seuset = RunPCA(object = seuset, features = VariableFeatures(object = seuset))
-    if (! is.null(knn)){
-        seuset = FindNeighbors(object = seuset, dims = seq_len(knn))
-    }else{
-        seuset = FindNeighbors(object = seuset)
-    }
-    if (! is.null(resolution)){
-        seuset = FindClusters(object = seuset, resolution = resolution)
-    }else{
-        seuset = FindClusters(object = seuset)
-    }
-    cluster = Idents(seuset)
-    tb = table(cluster)
-    percentage = tb/sum(tb)
-    return(list(cluster = cluster, percentage = percentage, markers = markers))
-}
+#' #' Seurat Clustering
+#' #'
+#' #' @param Y A expression matrix. It is recommended to use the raw count matrix.
+#' #' @param knn of nearest neighbors (knn).
+#' #' @param input_markers A character vector including the featured genes. If they are not presented, Seurat will take care of this.
+#' #' @param resolution clustering resolution (0, 1) (default = 0.5).
+#' #' @return the clustering labels and the featured genes.
+#' Seurat_Clust = function(Y, knn = 10, resolution = 0.5, input_markers = NULL){
+#'     #' input_markers is a character vector
+#'     seuset = CreateSeuratObject(counts = Y)
+#'     seuset = NormalizeData(object = seuset, normalization.method = "LogNormalize")
+#'     if (! is.null(input_markers)){
+#'         seuset@assays$RNA@var.features  = input_markers
+#'         markers = input_markers
+#'     }else{
+#'         seuset = FindVariableFeatures(object = seuset, selection.method = "vst")
+#'         markers = seuset@assays$RNA@var.features
+#'     }
+#'     seuset = ScaleData(object = seuset)
+#'     seuset = RunPCA(object = seuset, features = VariableFeatures(object = seuset))
+#'     if (! is.null(knn)){
+#'         seuset = FindNeighbors(object = seuset, dims = seq_len(knn))
+#'     }else{
+#'         seuset = FindNeighbors(object = seuset)
+#'     }
+#'     if (! is.null(resolution)){
+#'         seuset = FindClusters(object = seuset, resolution = resolution)
+#'     }else{
+#'         seuset = FindClusters(object = seuset)
+#'     }
+#'     cluster = Idents(seuset)
+#'     tb = table(cluster)
+#'     percentage = tb/sum(tb)
+#'     return(list(cluster = cluster, percentage = percentage, markers = markers))
+#' }
 
 

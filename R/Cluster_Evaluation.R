@@ -7,6 +7,7 @@
 #' vec2 = sample(vec1)
 #' tb = table(vec1, vec2)
 #' #tb_arg = align_CellType(tb)
+#' @importFrom methods is
 #' @export
 align_CellType = function(tt0) {
     N_rows = nrow(tt0)
@@ -75,7 +76,7 @@ Purity = function(x, y) {
 #' @param cl2 a vector
 #' @param randMethod a string chosen from "Rand", "FM", or "Jaccard"
 #' @return a numeric vector including three values
-cal_3_metrics = function(cl1, cl2, randMethod = c("Rand", "FM", "Jaccard"))
+cal_metrics = function(cl1, cl2, randMethod = c("Rand", "FM", "Jaccard"))
 {
     if(!is.vector(cl1)){
         stop("cl1 is not a vector!\n");
@@ -163,7 +164,7 @@ eval_Cluster = function(vec1, vec2){
     vec1 = as.numeric(as.factor(vec1))
     vec2 = as.numeric(as.factor(vec2))
     ari = mclust::adjustedRandIndex(vec1, vec2)
-    metrics3 = cal_3_metrics(vec1, vec2)
+    metrics3 = cal_metrics(vec1, vec2)
     # ri = metrics3[1]
     fmi = metrics3[2]
     jaccard = metrics3[3]
